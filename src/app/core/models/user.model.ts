@@ -5,8 +5,8 @@
   login: string;
   /** password: 4..10 characters */
   password: string;
-  /** role: 'Admin' | 'Trainee' */
-  role: 'Admin' | 'Trainee';
+  /** role (Swagger): 'admin' | 'user' */
+  role: 'admin' | 'user';
 }
 
 // Validation constraints (enforced in forms/services):

@@ -1,6 +1,5 @@
 ﻿export interface Exercise {
   id: string;
-  /** text length: 10..180 */
-  text: string;
-  difficultyId: string;
+  text: string; // length 10..180
+  level_id: string; // corresponds to difficulty level id in Swagger
 }
