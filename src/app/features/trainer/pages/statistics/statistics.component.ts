@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-trainer-statistics',
   standalone: true,
   imports: [CommonModule],
-  template: `<div class="page"><h2>Trainer Statistics (stub)</h2></div>`
+  templateUrl: './statistics.component.html',
+  styleUrls: ['./statistics.component.scss']
 })
 export class StatisticsComponent {}
 

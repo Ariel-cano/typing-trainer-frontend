@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-execution',
   standalone: true,
   imports: [CommonModule],
-  template: `<div class="page"><h2>Execution (stub)</h2></div>`
+  templateUrl: './execution.component.html',
+  styleUrls: ['./execution.component.scss']
 })
 export class ExecutionComponent {}
 

@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-difficulty',
   standalone: true,
   imports: [CommonModule],
-  template: `<div class="page"><h2>Admin Difficulty (stub)</h2></div>`
+  templateUrl: './difficulty.component.html',
+  styleUrls: ['./difficulty.component.scss']
 })
 export class DifficultyComponent {}
 

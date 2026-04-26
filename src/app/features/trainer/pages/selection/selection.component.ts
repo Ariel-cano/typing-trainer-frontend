@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-selection',
   standalone: true,
   imports: [CommonModule],
-  template: `<div class="page"><h2>Selection (stub)</h2></div>`
+  templateUrl: './selection.component.html',
+  styleUrls: ['./selection.component.scss']
 })
 export class SelectionComponent {}
 

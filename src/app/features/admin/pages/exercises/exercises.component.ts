@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-exercises',
   standalone: true,
   imports: [CommonModule],
-  template: `<div class="page"><h2>Admin Exercises (stub)</h2></div>`
+  templateUrl: './exercises.component.html',
+  styleUrls: ['./exercises.component.scss']
 })
 export class ExercisesComponent {}
 
