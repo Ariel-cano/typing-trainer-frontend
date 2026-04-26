@@ -24,8 +24,8 @@ export class LoginComponent {
   private router = inject(Router);
 
   form = this.fb.group({
-    login: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(8)]],
-    password: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(10)]]
+    login: ['', [Validators.required]],
+    password: ['', [Validators.required]]
   });
 
   loading = false;

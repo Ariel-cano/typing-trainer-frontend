@@ -1,0 +1,56 @@
+.form-title {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.form-link {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.auth-form form {
+  width: 100%;
+}
+
+.control-wrap {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.auth-form input[nz-input] {
+  height: 40px !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+::ng-deep nz-input-password {
+  width: 100% !important;
+  display: block;
+}
+
+::ng-deep nz-input-password .ant-input,
+::ng-deep nz-input-password input {
+  height: 40px !important;
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+::ng-deep nz-input-password .ant-input-suffix {
+  display: flex;
+  align-items: center;
+}
+
+.field-error {
+  color: #ff4d4f;
+  font-size: 12px;
+  height: 20px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+}
+

@@ -1,41 +1,29 @@
-<div class="login-page">
-  <h2 class="title">Авторизация</h2>
+<div class="auth-form">
+  <h2 class="form-title">Авторизация</h2>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
 
-    <nz-form-item>
-      <nz-form-control>
-        <div class="control-wrap">
-          <input nz-input formControlName="login" placeholder="Логин" />
-          <div class="field-error">
-            <ng-container *ngIf="form.get('login')?.touched && form.get('login')?.invalid">
-              <span *ngIf="form.get('login')?.errors?.['required']">Логин обязателен</span>
-              <span *ngIf="form.get('login')?.errors?.['minlength']">Длина логина - минимум 4 символа</span>
-              <span *ngIf="form.get('login')?.errors?.['maxlength']">Длина логина - максимум 8 символов</span>
-            </ng-container>
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
+    <div class="control-wrap">
+      <input nz-input formControlName="login" placeholder="Логин" />
+      <div class="field-error">
+        <ng-container *ngIf="form.get('login')?.touched && form.get('login')?.invalid">
+          <span *ngIf="form.get('login')?.errors?.['required']">Логин обязателен</span>
+        </ng-container>
+      </div>
+    </div>
 
-    <nz-form-item>
-      <nz-form-control>
-        <div class="control-wrap">
-          <nz-input-password
-            [nzVisible]="passwordVisible()"
-            (nzVisibleChange)="passwordVisible.set($event)">
-            <input nz-input formControlName="password" placeholder="Пароль" />
-          </nz-input-password>
-          <div class="field-error">
-            <ng-container *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
-              <span *ngIf="form.get('password')?.errors?.['required']">Пароль обязателен</span>
-              <span *ngIf="form.get('password')?.errors?.['minlength']">Длина пароля - минимум 4 символа</span>
-              <span *ngIf="form.get('password')?.errors?.['maxlength']">Длина пароля - максимум 10 символов</span>
-            </ng-container>
-          </div>
-        </div>
-      </nz-form-control>
-    </nz-form-item>
+    <div class="control-wrap">
+      <nz-input-password
+        [nzVisible]="passwordVisible()"
+        (nzVisibleChange)="passwordVisible.set($event)">
+        <input nz-input formControlName="password" placeholder="Пароль" />
+      </nz-input-password>
+      <div class="field-error">
+        <ng-container *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+          <span *ngIf="form.get('password')?.errors?.['required']">Пароль обязателен</span>
+        </ng-container>
+      </div>
+    </div>
 
     <nz-alert
       *ngIf="error"
@@ -55,7 +43,7 @@
 
   </form>
 
-  <div class="register-link">
+  <div class="form-link">
     <a routerLink="/register">Зарегистрироваться</a>
   </div>
 </div>
