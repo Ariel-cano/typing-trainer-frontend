@@ -16,7 +16,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       const status = err?.status;
 
       if (status === 401) {
-        // Unauthorized — clear auth and redirect to login
         try {
           auth.logout();
         } catch {}
@@ -27,7 +26,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       }
 
       if (status === 409 && err?.error?.code === 'LOGIN_EXISTS') {
-        // Let component handle this specific backend error
         return throwError(() => err);
       }
 

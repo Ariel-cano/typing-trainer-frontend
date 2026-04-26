@@ -21,7 +21,6 @@ export class AuthStateService {
       localStorage.setItem(TOKEN_KEY, token);
       localStorage.setItem(USER_KEY, JSON.stringify(user));
     } catch (e) {
-      // ignore localStorage errors
       console.warn('AuthStateService: failed to persist auth state', e);
     }
   }

@@ -25,7 +25,6 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(FormsModule),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
-    // APP_INITIALIZER to restore auth state from localStorage before app start
     {
       provide: APP_INITIALIZER,
       useFactory: (auth: AuthStateService) => () => auth.loadFromStorage(),
