@@ -1,0 +1,60 @@
+.title{
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.register-link{
+  text-align: center;
+  margin-top: 10px;
+}
+
+.login-page{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.login-page form {
+  width: 100%;
+}
+
+.login-page nz-form-item, .login-page nz-form-control {
+  width: 100%;
+}
+
+.login-page input[nz-input], .login-page .password-wrapper input[nz-input] {
+  width: 100%;
+  box-sizing: border-box;
+  height: 35px;
+  padding: 8px 12px;
+}
+
+.password-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input[nz-input] {
+  flex: 1 1 auto;
+}
+
+.password-wrapper .pwd-toggle {
+  margin-left: 8px;
+  flex: 0 0 auto;
+}
+
+.login-page button[nz-button] {
+  width: 100%;
+}
+
+.login-page .stretch-into-padding,
+.login-page input[nz-input],
+.login-page .password-wrapper,
+.login-page button[nz-button] {
+  width: calc(100% + 64px);
+  margin-left: -32px;
+}
+
