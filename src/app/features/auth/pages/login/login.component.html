@@ -1,0 +1,23 @@
+<div class="login-page">
+  <h2 class="title">Авторизация</h2>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <nz-form-item>
+      <nz-form-control>
+        <input nz-input formControlName="login" placeholder="логин" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <input nz-input type="password" formControlName="password" placeholder="пароль" />
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-alert *ngIf="error" nzType="error" [nzMessage]="error"></nz-alert>
+
+    <button nz-button nzType="primary" [nzBlock]="true" [disabled]="form.invalid || loading" [nzLoading]="loading">Войти</button>
+  </form>
+
+  <div class="register-link"><a routerLink="/register">Зарегистрироваться</a></div>
+</div>
+
