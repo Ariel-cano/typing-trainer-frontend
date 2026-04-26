@@ -9,11 +9,8 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
   imports: [RouterLink, RouterOutlet, NzIconModule, NzLayoutModule, NzMenuModule],
   templateUrl: './app.component.html',
   standalone: true,
-  styleUrl: './app.component.scss'
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title(title: any) {
-      throw new Error('Method not implemented.');
-  }
   isCollapsed = false;
 }
