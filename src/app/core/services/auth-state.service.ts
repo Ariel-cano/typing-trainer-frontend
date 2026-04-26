@@ -1,5 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { User } from '../models/user.model';
+import { User } from '../models';
 
 const TOKEN_KEY = 'kbt_token';
 const USER_KEY = 'kbt_user';
