@@ -9,7 +9,12 @@
 
     <nz-form-item>
       <nz-form-control>
-        <input nz-input type="password" formControlName="password" placeholder="пароль" />
+        <nz-input-password [nzVisible]="passwordVisible()" (nzVisibleChange)="passwordVisible.set($event)">
+          <input nz-input formControlName="password" placeholder="пароль" />
+          <ng-template nzInputPasswordIcon let-visible>
+            <i nz-icon [nzType]="visible ? 'eye' : 'eye-invisible'"></i>
+          </ng-template>
+        </nz-input-password>
       </nz-form-control>
     </nz-form-item>
 

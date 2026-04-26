@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
@@ -30,6 +30,7 @@ export class LoginComponent {
 
   loading = false;
   error: string | null = null;
+  passwordVisible = signal(false);
 
   private parseJwt(token: string): any {
     try {
