@@ -3,18 +3,32 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <nz-form-item>
       <nz-form-control>
-        <input nz-input formControlName="login" placeholder="логин" />
+        <div class="control-wrap">
+          <input nz-input formControlName="login" placeholder="логин" />
+            <div class="field-error" [class.visible]="(form.get('login')?.invalid && form.get('login')?.touched)">
+              <div *ngIf="form.get('login')?.errors?.['required']">Логин обязателен</div>
+              <div *ngIf="form.get('login')?.errors?.['minlength']">Логин должен быть не менее 4 символов</div>
+              <div *ngIf="form.get('login')?.errors?.['maxlength']">Логин не должен превышать 8 символов</div>
+            </div>
+        </div>
       </nz-form-control>
     </nz-form-item>
 
     <nz-form-item>
       <nz-form-control>
-        <nz-input-password [nzVisible]="passwordVisible()" (nzVisibleChange)="passwordVisible.set($event)">
-          <input nz-input formControlName="password" placeholder="пароль" />
-          <ng-template nzInputPasswordIcon let-visible>
-            <i nz-icon [nzType]="visible ? 'eye' : 'eye-invisible'"></i>
-          </ng-template>
-        </nz-input-password>
+        <div class="control-wrap">
+          <nz-input-password [nzVisible]="passwordVisible()" (nzVisibleChange)="passwordVisible.set($event)">
+            <input nz-input formControlName="password" placeholder="пароль" />
+            <ng-template nzInputPasswordIcon let-visible>
+              <i nz-icon [nzType]="visible ? 'eye' : 'eye-invisible'"></i>
+            </ng-template>
+          </nz-input-password>
+          <div class="field-error" [class.visible]="(form.get('password')?.invalid && form.get('password')?.touched)">
+            <div *ngIf="form.get('password')?.errors?.['required']">Пароль обязателен</div>
+            <div *ngIf="form.get('password')?.errors?.['minlength']">Пароль должен быть не менее 4 символов</div>
+            <div *ngIf="form.get('password')?.errors?.['maxlength']">Пароль не должен превышать 10 символов</div>
+          </div>
+        </div>
       </nz-form-control>
     </nz-form-item>
 
