@@ -20,7 +20,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           auth.logout();
         } catch {}
         try {
-          router.navigate(['/auth/login']);
+          router.navigate(['/login']);
         } catch {}
         return throwError(() => err);
       }

@@ -1,0 +1,20 @@
+<nz-layout>
+  <nz-header class="header">
+    <div class="header-inner">
+      <div class="brand">Клавиатурный тренажёр</div>
+      <ul nz-menu nzMode="horizontal" class="nav">
+        <li nz-menu-item *ngIf="!isAdmin()"><a routerLink="/trainer/selection">Упражнение</a></li>
+        <li nz-menu-item *ngIf="!isAdmin()"><a routerLink="/trainer/statistics">Статистика</a></li>
+        <li nz-menu-item *ngIf="isAdmin()"><a routerLink="/admin/difficulty">Настройка уровней</a></li>
+        <li nz-menu-item *ngIf="isAdmin()"><a routerLink="/admin/exercises">Упражнения</a></li>
+        <li nz-menu-item *ngIf="isAdmin()"><a routerLink="/admin/statistics">Статистика</a></li>
+        <li nz-menu-item><a routerLink="/trainer/about">О программе</a></li>
+        <li nz-menu-item class="logout"><button nz-button nzType="text" (click)="logout()">Выйти</button></li>
+      </ul>
+    </div>
+  </nz-header>
+  <nz-content>
+    <main class="main"><router-outlet></router-outlet></main>
+  </nz-content>
+</nz-layout>
+

@@ -8,10 +8,10 @@ export const adminGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (auth.isAdmin()) {
-	return true;
+    return true;
   }
 
-  router.navigate(['/trainee/exercises']);
+  router.navigate(['/trainer/selection']);
   return false;
 };
 
