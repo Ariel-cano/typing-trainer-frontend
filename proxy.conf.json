@@ -1,0 +1,27 @@
+{
+  "/login": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true
+  },
+  "/register": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true
+  },
+  "/difficulty-levels": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true
+  },
+  "/exercises": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true
+  },
+  "/keyboard-zones": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true
+  },
+  "/statistics": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true
+  }
+}
+
