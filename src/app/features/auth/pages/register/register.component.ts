@@ -30,16 +30,6 @@ export class RegisterComponent {
   error: string | null = null;
   passwordVisible = signal(false);
 
-  private parseJwt(token: string): any {
-    try {
-      const payload = token.split('.')[1];
-      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-      return JSON.parse(decodeURIComponent(escape(decoded)));
-    } catch {
-      return null;
-    }
-  }
-
   onSubmit() {
     if (this.form.invalid) return;
     this.loading = true;
@@ -47,22 +37,12 @@ export class RegisterComponent {
 
     const { login, password } = this.form.value;
 
-    this.authApi.register({ login, password } as any).subscribe({
+    this.authApi.register({ login: login!, password: password! }).subscribe({
       next: () => {
-        this.authApi.login({ login, password } as any).subscribe({
-          next: (res: any) => {
-            const token = res?.token;
-            let user = res?.user;
-            if (!user && token) {
-              const payload = this.parseJwt(token) || {};
-              user = { id: payload.sub || '', login: payload.login || login, password: '', role: payload.role || 'user' };
-            }
-            if (token && user) {
-              this.authState.login(token, user);
-              this.router.navigate(['/trainer/selection']);
-            } else {
-              this.error = 'Invalid response from server';
-            }
+        this.authApi.login({ login: login!, password: password! }).subscribe({
+          next: (res) => {
+            this.authState.login(res.token, login ?? undefined);
+            this.router.navigate(['/trainer/selection']);
             this.loading = false;
           },
           error: () => {
@@ -71,8 +51,9 @@ export class RegisterComponent {
           }
         });
       },
-      error: (err: any) => {
-        if (err?.status === 409 && err?.error?.code === 'LOGIN_EXISTS') {
+      error: (err) => {
+        const code = err?.error?.error?.code;
+        if (err?.status === 409 && code === 'LOGIN_EXISTS') {
           this.error = 'Пользователь с таким логином уже существует';
         } else {
           this.error = 'Ошибка сервера';
@@ -82,4 +63,3 @@ export class RegisterComponent {
     });
   }
 }
-

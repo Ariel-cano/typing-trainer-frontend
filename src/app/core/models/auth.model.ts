@@ -1,8 +1,6 @@
-﻿import { User } from './user.model';
-
-export interface LoginRequest {
-  login: string; // min 4, max 8
-  password: string; // min 4, max 10
+﻿export interface LoginRequest {
+  login: string;
+  password: string;
 }
 
 export interface LoginResponse {
@@ -10,15 +8,15 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
-  login: string; // min 4, max 8
-  password: string; // min 4, max 10
+  login: string;
+  password: string;
 }
 
 export interface RegisterUserResponse {
   id: string;
   login: string;
   role: 'admin' | 'user';
-  createdAt?: string;
+  createdAt: string;
 }
 
 export interface RegisterResponse {

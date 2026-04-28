@@ -4,6 +4,12 @@ import { User } from '../models';
 const TOKEN_KEY = 'kbt_token';
 const USER_KEY = 'kbt_user';
 
+type JwtPayload = {
+  sub?: string;
+  login?: string;
+  role?: 'admin' | 'user';
+};
+
 @Injectable({ providedIn: 'root' })
 export class AuthStateService {
   private _token = signal<string | null>(null);
@@ -14,7 +20,25 @@ export class AuthStateService {
   readonly isAuthenticated = computed(() => !!this._token());
   readonly isAdmin = computed(() => this._user()?.role === 'admin');
 
-  login(token: string, user: User): void {
+  private parseJwt(token: string): JwtPayload | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return null;
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded) as JwtPayload;
+    } catch {
+      return null;
+    }
+  }
+
+  login(token: string, fallbackLogin?: string): void {
+    const payload = this.parseJwt(token);
+    const user: User = {
+      id: payload?.sub ?? '',
+      login: payload?.login ?? fallbackLogin ?? '',
+      role: payload?.role ?? 'user'
+    };
+
     this._token.set(token);
     this._user.set(user);
     try {
@@ -50,6 +74,16 @@ export class AuthStateService {
         } catch (e) {
           console.warn('AuthStateService: invalid user in storage', e);
           this._user.set(null);
+        }
+      } else if (token) {
+        const payload = this.parseJwt(token);
+        if (payload) {
+          const user: User = {
+            id: payload.sub ?? '',
+            login: payload.login ?? '',
+            role: payload.role ?? 'user'
+          };
+          this._user.set(user);
         }
       }
     } catch (e) {
