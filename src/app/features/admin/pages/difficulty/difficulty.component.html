@@ -1,4 +1,97 @@
-<div class="page">
-  <h2>Admin Difficulty (stub)</h2>
+<div class="difficulty-page">
+  <nz-card class="levels-card">
+    <ul nz-menu nzMode="inline" class="levels-menu">
+      @for (levelNumber of levelsMenu; track $index) {
+        <li nz-menu-item [nzSelected]="selectedIndex === $index" (click)="selectLevel($index)">
+          {{ levelNumber }} уровень
+        </li>
+      }
+    </ul>
+  </nz-card>
+
+  <nz-card class="form-card" [nzTitle]="'Настройка ' + (selectedIndex + 1) + ' уровня'">
+    @if (loading) {
+      <div class="loading"><nz-spin></nz-spin></div>
+    } @else {
+      <form class="difficulty-form" [formGroup]="form" (ngSubmit)="onSave()">
+        <div class="form-grid">
+          <div class="form-left">
+            <div class="field">
+              <label class="field-label">Зоны клавиатуры</label>
+              <nz-select
+                formControlName="keyboard_zone_ids"
+                nzMode="multiple"
+                nzPlaceHolder="Выбор зон клавиатуры">
+                @for (zone of zones; track zone.id) {
+                  <nz-option [nzValue]="zone.id" [nzLabel]="zone.name"></nz-option>
+                }
+              </nz-select>
+            </div>
+          </div>
+
+          <div class="form-right">
+            <div class="field">
+              <label class="field-label">Минимальное количество знаков</label>
+              <nz-input-number
+                formControlName="min_exercise_length"
+                [nzMin]="MIN_EXERCISE_LENGTH"
+                [nzMax]="MAX_EXERCISE_LENGTH"
+                [nzStep]="1">
+              </nz-input-number>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Максимальное количество знаков</label>
+              <nz-input-number
+                formControlName="max_exercise_length"
+                [nzMin]="MIN_EXERCISE_LENGTH"
+                [nzMax]="MAX_EXERCISE_LENGTH"
+                [nzStep]="1">
+              </nz-input-number>
+              @if (form.errors?.['minMaxLength']) {
+                <div class="field-error">Минимум должен быть меньше максимума</div>
+              }
+            </div>
+
+            <div class="field">
+              <label class="field-label">Максимальное количество ошибок</label>
+              <nz-input-number
+                formControlName="allowed_mistakes"
+                [nzMin]="0"
+                [nzMax]="MAX_MISTAKES"
+                [nzStep]="1">
+              </nz-input-number>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Время нажатия на клавишу (в сек.)</label>
+              <nz-input-number
+                formControlName="key_press_time"
+                [nzMin]="MIN_KEY_PRESS_TIME"
+                [nzMax]="MAX_KEY_PRESS_TIME"
+                [nzStep]="0.1"
+                [nzPrecision]="1">
+              </nz-input-number>
+            </div>
+          </div>
+        </div>
+
+        <div class="keyboard-placeholder">
+          <div class="keyboard-title">Место для рисунка клавиатуры</div>
+        </div>
+
+        <div class="form-actions">
+          <button
+            nz-button
+            nzType="primary"
+            [nzBlock]="true"
+            [nzLoading]="saving"
+            [disabled]="form.invalid || saving">
+            Сохранить
+          </button>
+        </div>
+      </form>
+    }
+  </nz-card>
 </div>
 

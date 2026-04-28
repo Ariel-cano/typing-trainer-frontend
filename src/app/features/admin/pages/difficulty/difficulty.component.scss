@@ -1,2 +1,85 @@
-.page { padding: 16px; }
+.difficulty-page {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
 
+.levels-card {
+  width: 220px;
+}
+
+.levels-menu {
+  border: none;
+}
+
+.form-card {
+  flex: 1 1 auto;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.difficulty-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-grid {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.form-left {
+  flex: 0 0 320px;
+}
+
+.form-left nz-select,
+.form-right nz-input-number {
+  width: 100%;
+}
+
+.form-right {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-actions {
+  margin-top: 8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-weight: 600;
+}
+
+.field-error {
+  color: #ff4d4f;
+  font-size: 12px;
+}
+
+.keyboard-placeholder {
+  border: 1px dashed #91d5ff;
+  border-radius: 8px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5fbff;
+}
+
+.keyboard-title {
+  color: #8c8c8c;
+}
