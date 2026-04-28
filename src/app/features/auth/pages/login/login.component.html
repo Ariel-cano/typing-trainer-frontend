@@ -6,9 +6,11 @@
     <div class="control-wrap">
       <input nz-input formControlName="login" placeholder="Логин" />
       <div class="field-error">
-        <ng-container *ngIf="form.get('login')?.touched && form.get('login')?.invalid">
-          <span *ngIf="form.get('login')?.errors?.['required']">Логин обязателен</span>
-        </ng-container>
+        @if (form.get('login')?.touched && form.get('login')?.invalid) {
+          @if (form.get('login')?.errors?.['required']) {
+            <span>Логин обязателен</span>
+          }
+        }
       </div>
     </div>
 
@@ -19,18 +21,21 @@
         <input nz-input formControlName="password" placeholder="Пароль" />
       </nz-input-password>
       <div class="field-error">
-        <ng-container *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
-          <span *ngIf="form.get('password')?.errors?.['required']">Пароль обязателен</span>
-        </ng-container>
+        @if (form.get('password')?.touched && form.get('password')?.invalid) {
+          @if (form.get('password')?.errors?.['required']) {
+            <span>Пароль обязателен</span>
+          }
+        }
       </div>
     </div>
 
-    <nz-alert
-      *ngIf="error"
-      nzType="error"
-      [nzMessage]="error"
-      style="margin-bottom: 12px;">
-    </nz-alert>
+    @if (error) {
+      <nz-alert
+        nzType="error"
+        [nzMessage]="error"
+        style="margin-bottom: 12px;">
+      </nz-alert>
+    }
 
     <button
       nz-button
