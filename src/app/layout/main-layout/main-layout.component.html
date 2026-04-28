@@ -8,25 +8,25 @@
           <li nz-menu-item><a routerLink="/trainer/statistics">Статистика</a></li>
         }
         @if (isAdmin()) {
-          <li nz-menu-item><a routerLink="/admin/difficulty"></a>Настройка уровней сложности</li>
+          <li nz-menu-item><a routerLink="/admin/difficulty">Настройка уровней сложности</a></li>
           <li nz-menu-item><a routerLink="/admin/exercises">Создание упражнений</a></li>
           <li nz-menu-item><a routerLink="/admin/statistics">Статистика</a></li>
         }
-        <li nz-menu-item class="logout"><button nz-button nzType="text" (click)="logout()">Выйти</button></li>
-        <li nz-menu-item>
-          <a nz-dropdown [nzDropdownMenu]="menu">Hover me</a>
-          <nz-dropdown-menu #menu="nzDropdownMenu">
-            <ul nz-menu>
-              <li nz-menu-item><a routerLink="/trainer/about"></a>О программе</li>
-              <li nz-menu-item><a routerLink="/trainer/about"></a>О программе</li>
-            </ul>
-          </nz-dropdown-menu>
-        </li>
       </ul>
+      <div class="header-actions">
+        <button nz-button nzType="text" (click)="logout()">Выйти</button>
+        <a nz-dropdown [nzDropdownMenu]="menu" class="dropdown-trigger">
+          <nz-icon nzType="exception"></nz-icon>
+        </a>
+        <nz-dropdown-menu #menu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item><a routerLink="/trainer/about">О программе</a></li>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
     </div>
   </nz-header>
   <nz-content>
     <main class="main"><router-outlet></router-outlet></main>
   </nz-content>
 </nz-layout>
-

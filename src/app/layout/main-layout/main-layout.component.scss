@@ -1,8 +1,29 @@
-:host { display:block; }
+:host { display:block; width:100%; min-height:100vh; background:#e6f4ff; }
 .header { background: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.header-inner { display:flex; align-items:center; justify-content:space-between; max-width:1200px; margin:0 auto; padding:0 16px; height:64px; }
-.brand { font-weight:700; }
-.nav { display:flex; gap:12px; align-items:center; margin:0; padding:0; list-style:none; }
-.main { padding:24px; background:#8ecafa; min-height: calc(100vh - 64px); }
-.logout { margin-left: 12px; }
+.header-inner { display:flex; align-items:center; gap:16px; padding:0 16px; height:64px; }
+.brand { font-weight:700; flex:0 0 auto; }
+.nav { display:flex; gap:12px; align-items:center; justify-content:center; flex:1 1 auto; margin:0; padding:0; list-style:none; }
+.header-actions { display:flex; align-items:center; gap:12px; flex:0 0 auto; }
+.dropdown-trigger { display:inline-flex; align-items:center; }
+.main {background:#e6f4ff; box-sizing: border-box; }
+nz-icon{
+  font-size: 20px;
+  margin-left: 20px;
+  color: black;
+}
+nz-layout {
+  background: #e6f4ff;
+  min-height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
 
+nz-header {
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+nz-content {
+  background: transparent;
+  padding: 0;
+}

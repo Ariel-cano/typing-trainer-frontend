@@ -6,11 +6,12 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { AuthStateService } from '../../core/services/auth-state.service';
 import { Router } from '@angular/router';
 import {NzDropDownDirective, NzDropdownMenuComponent} from 'ng-zorro-antd/dropdown';
+import {NzIconDirective} from 'ng-zorro-antd/icon';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, NzLayoutModule, NzMenuModule, NzButtonModule, NzDropdownMenuComponent, NzDropDownDirective],
+  imports: [RouterOutlet, RouterLink, NzLayoutModule, NzMenuModule, NzButtonModule, NzDropdownMenuComponent, NzDropDownDirective, NzIconDirective],
   templateUrl: './main-layout.component.html',
   styleUrls: ['./main-layout.component.scss']
 })
