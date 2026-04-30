@@ -74,11 +74,18 @@
 .keyboard-placeholder {
   border: 1px dashed #91d5ff;
   border-radius: 8px;
-  height: 180px;
+  min-height: 320px;
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f5fbff;
+}
+
+.keyboard-placeholder img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 .keyboard-title {

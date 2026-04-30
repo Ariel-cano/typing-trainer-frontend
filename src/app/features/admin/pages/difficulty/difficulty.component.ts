@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, FormGroup, FormControl } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -26,7 +26,8 @@ import { DifficultyLevel, KeyboardZone, DifficultyLevelCreateRequest } from '../
     NzInputNumberModule,
     NzMenuModule,
     NzSelectModule,
-    NzSpinModule
+    NzSpinModule,
+    NgOptimizedImage
   ],
   templateUrl: './difficulty.component.html',
   styleUrls: ['./difficulty.component.scss']
