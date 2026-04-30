@@ -2,7 +2,14 @@
   <nz-card class="levels-card">
     <ul nz-menu nzMode="inline" class="levels-menu">
       @for (levelNumber of levelsMenu; track $index) {
-        <li nz-menu-item [nzSelected]="selectedIndex === $index" (click)="selectLevel($index)">
+        <li
+          nz-menu-item
+          [nzSelected]="selectedIndex === $index"
+          role="option"
+          tabindex="0"
+          (click)="selectLevel($index)"
+          (keydown.enter)="selectLevel($index)"
+          (keydown.space)="selectLevel($index)">
           {{ levelNumber }} уровень
         </li>
       }
@@ -17,61 +24,92 @@
         <div class="form-grid">
           <div class="form-left">
             <div class="field">
-              <label class="field-label">Зоны клавиатуры</label>
+              <div class="field-label">Зоны клавиатуры</div>
               <nz-select
                 formControlName="keyboard_zone_ids"
                 nzMode="multiple"
+                nzSize="small"
                 nzPlaceHolder="Выбор зон клавиатуры">
                 @for (zone of zones; track zone.id) {
                   <nz-option [nzValue]="zone.id" [nzLabel]="zone.name"></nz-option>
                 }
               </nz-select>
+              <div class="field-error">
+                @if (form.get('keyboard_zone_ids')?.touched && form.get('keyboard_zone_ids')?.invalid) {
+                  <span>Выберите хотя бы одну зону</span>
+                }
+              </div>
             </div>
           </div>
 
           <div class="form-right">
-            <div class="field">
-              <label class="field-label">Минимальное количество знаков</label>
-              <nz-input-number
-                formControlName="min_exercise_length"
-                [nzMin]="MIN_EXERCISE_LENGTH"
-                [nzMax]="MAX_EXERCISE_LENGTH"
-                [nzStep]="1">
-              </nz-input-number>
-            </div>
+            <div class="input-grid">
+              <div class="field">
+                <div class="field-label">Минимальное количество знаков</div>
+                <nz-input-number
+                  formControlName="min_exercise_length"
+                  nzSize="small"
+                  [nzMin]="MIN_EXERCISE_LENGTH"
+                  [nzMax]="MAX_EXERCISE_LENGTH"
+                  [nzStep]="1">
+                </nz-input-number>
+                <div class="field-error">
+                  @if (form.get('min_exercise_length')?.touched && form.get('min_exercise_length')?.invalid) {
+                    <span>Диапазон: 10–180</span>
+                  }
+                </div>
+              </div>
 
-            <div class="field">
-              <label class="field-label">Максимальное количество знаков</label>
-              <nz-input-number
-                formControlName="max_exercise_length"
-                [nzMin]="MIN_EXERCISE_LENGTH"
-                [nzMax]="MAX_EXERCISE_LENGTH"
-                [nzStep]="1">
-              </nz-input-number>
-              @if (form.errors?.['minMaxLength']) {
-                <div class="field-error">Минимум должен быть меньше максимума</div>
-              }
-            </div>
+              <div class="field">
+                <div class="field-label">Максимальное количество знаков</div>
+                <nz-input-number
+                  formControlName="max_exercise_length"
+                  nzSize="small"
+                  [nzMin]="MIN_EXERCISE_LENGTH"
+                  [nzMax]="MAX_EXERCISE_LENGTH"
+                  [nzStep]="1">
+                </nz-input-number>
+                <div class="field-error">
+                  @if (form.errors?.['minMaxLength'] && (form.get('min_exercise_length')?.touched || form.get('max_exercise_length')?.touched)) {
+                    <span>Минимум должен быть меньше максимума</span>
+                  } @else if (form.get('max_exercise_length')?.touched && form.get('max_exercise_length')?.invalid) {
+                    <span>Диапазон: 10–180</span>
+                  }
+                </div>
+              </div>
 
-            <div class="field">
-              <label class="field-label">Максимальное количество ошибок</label>
-              <nz-input-number
-                formControlName="allowed_mistakes"
-                [nzMin]="0"
-                [nzMax]="MAX_MISTAKES"
-                [nzStep]="1">
-              </nz-input-number>
-            </div>
+              <div class="field">
+                <div class="field-label">Максимальное количество ошибок</div>
+                <nz-input-number
+                  formControlName="allowed_mistakes"
+                  nzSize="small"
+                  [nzMin]="0"
+                  [nzMax]="MAX_MISTAKES"
+                  [nzStep]="1">
+                </nz-input-number>
+                <div class="field-error">
+                  @if (form.get('allowed_mistakes')?.touched && form.get('allowed_mistakes')?.invalid) {
+                    <span>Диапазон: 0–10</span>
+                  }
+                </div>
+              </div>
 
-            <div class="field">
-              <label class="field-label">Время нажатия на клавишу (в сек.)</label>
-              <nz-input-number
-                formControlName="key_press_time"
-                [nzMin]="MIN_KEY_PRESS_TIME"
-                [nzMax]="MAX_KEY_PRESS_TIME"
-                [nzStep]="0.1"
-                [nzPrecision]="1">
-              </nz-input-number>
+              <div class="field">
+                <div class="field-label">Время нажатия на клавишу (в сек.)</div>
+                <nz-input-number
+                  formControlName="key_press_time"
+                  nzSize="small"
+                  [nzMin]="MIN_KEY_PRESS_TIME"
+                  [nzMax]="MAX_KEY_PRESS_TIME"
+                  [nzStep]="0.1"
+                  [nzPrecision]="1">
+                </nz-input-number>
+                <div class="field-error">
+                  @if (form.get('key_press_time')?.touched && form.get('key_press_time')?.invalid) {
+                    <span>Диапазон: 0.5–2.0 сек</span>
+                  }
+                </div>
+              </div>
             </div>
           </div>
         </div>

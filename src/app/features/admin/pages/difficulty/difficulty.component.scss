@@ -36,29 +36,28 @@
 }
 
 .form-left {
-  flex: 0 0 320px;
+  flex: 0 0 240px;
 }
 
 .form-left nz-select,
-.form-right nz-input-number {
+.input-grid nz-input-number {
   width: 100%;
 }
 
 .form-right {
   flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
-.form-actions {
-  margin-top: 8px;
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 12px 20px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .field-label {
@@ -68,6 +67,8 @@
 .field-error {
   color: #ff4d4f;
   font-size: 12px;
+  height: 20px;
+  margin-top: 2px;
 }
 
 .keyboard-placeholder {
