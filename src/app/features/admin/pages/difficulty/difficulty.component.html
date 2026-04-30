@@ -45,14 +45,16 @@
           <div class="form-right">
             <div class="input-grid">
               <div class="field">
-                <div class="field-label">Минимальное количество знаков</div>
-                <nz-input-number
-                  formControlName="min_exercise_length"
-                  nzSize="small"
-                  [nzMin]="MIN_EXERCISE_LENGTH"
-                  [nzMax]="MAX_EXERCISE_LENGTH"
-                  [nzStep]="1">
-                </nz-input-number>
+                <div class="field-row">
+                  <div class="field-label">Минимальное количество знаков</div>
+                  <nz-input-number
+                    formControlName="min_exercise_length"
+                    nzSize="small"
+                    [nzMin]="MIN_EXERCISE_LENGTH"
+                    [nzMax]="MAX_EXERCISE_LENGTH"
+                    [nzStep]="1">
+                  </nz-input-number>
+                </div>
                 <div class="field-error">
                   @if (form.get('min_exercise_length')?.touched && form.get('min_exercise_length')?.invalid) {
                     <span>Диапазон: 10–180</span>
@@ -61,14 +63,16 @@
               </div>
 
               <div class="field">
-                <div class="field-label">Максимальное количество знаков</div>
-                <nz-input-number
-                  formControlName="max_exercise_length"
-                  nzSize="small"
-                  [nzMin]="MIN_EXERCISE_LENGTH"
-                  [nzMax]="MAX_EXERCISE_LENGTH"
-                  [nzStep]="1">
-                </nz-input-number>
+                <div class="field-row">
+                  <div class="field-label">Максимальное количество знаков</div>
+                  <nz-input-number
+                    formControlName="max_exercise_length"
+                    nzSize="small"
+                    [nzMin]="MIN_EXERCISE_LENGTH"
+                    [nzMax]="MAX_EXERCISE_LENGTH"
+                    [nzStep]="1">
+                  </nz-input-number>
+                </div>
                 <div class="field-error">
                   @if (form.errors?.['minMaxLength'] && (form.get('min_exercise_length')?.touched || form.get('max_exercise_length')?.touched)) {
                     <span>Минимум должен быть меньше максимума</span>
@@ -79,14 +83,16 @@
               </div>
 
               <div class="field">
-                <div class="field-label">Максимальное количество ошибок</div>
-                <nz-input-number
-                  formControlName="allowed_mistakes"
-                  nzSize="small"
-                  [nzMin]="0"
-                  [nzMax]="MAX_MISTAKES"
-                  [nzStep]="1">
-                </nz-input-number>
+                <div class="field-row">
+                  <div class="field-label">Максимальное количество ошибок</div>
+                  <nz-input-number
+                    formControlName="allowed_mistakes"
+                    nzSize="small"
+                    [nzMin]="0"
+                    [nzMax]="MAX_MISTAKES"
+                    [nzStep]="1">
+                  </nz-input-number>
+                </div>
                 <div class="field-error">
                   @if (form.get('allowed_mistakes')?.touched && form.get('allowed_mistakes')?.invalid) {
                     <span>Диапазон: 0–10</span>
@@ -95,15 +101,17 @@
               </div>
 
               <div class="field">
-                <div class="field-label">Время нажатия на клавишу (в сек.)</div>
-                <nz-input-number
-                  formControlName="key_press_time"
-                  nzSize="small"
-                  [nzMin]="MIN_KEY_PRESS_TIME"
-                  [nzMax]="MAX_KEY_PRESS_TIME"
-                  [nzStep]="0.1"
-                  [nzPrecision]="1">
-                </nz-input-number>
+                <div class="field-row">
+                  <div class="field-label">Время нажатия на клавишу (в сек.)</div>
+                  <nz-input-number
+                    formControlName="key_press_time"
+                    nzSize="small"
+                    [nzMin]="MIN_KEY_PRESS_TIME"
+                    [nzMax]="MAX_KEY_PRESS_TIME"
+                    [nzStep]="0.1"
+                    [nzPrecision]="1">
+                  </nz-input-number>
+                </div>
                 <div class="field-error">
                   @if (form.get('key_press_time')?.touched && form.get('key_press_time')?.invalid) {
                     <span>Диапазон: 0.5–2.0 сек</span>

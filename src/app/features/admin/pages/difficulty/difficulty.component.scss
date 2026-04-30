@@ -50,14 +50,14 @@
 
 .input-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(160px, 1fr));
-  gap: 12px 20px;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 12px 24px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .field-label {
@@ -83,4 +83,19 @@
 
 .keyboard-title {
   color: #8c8c8c;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field-row .field-label {
+  flex: 1 1 auto;
+}
+
+.field-row nz-input-number {
+  flex: 0 0 120px;
 }
