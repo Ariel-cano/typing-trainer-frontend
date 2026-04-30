@@ -19,15 +19,21 @@ export class DifficultyApiService {
   }
 
   getById(id: string): Observable<DifficultyLevel> {
-    return this.http.get<DifficultyLevel>(`${this.base}/difficulty-levels/${id}`);
+     return this.http
+      .get<{ difficulty_level: DifficultyLevel }>(`${this.base}/difficulty-levels/${id}`)
+      .pipe(map((response) => response.difficulty_level));
   }
 
   create(body: DifficultyLevelCreateRequest): Observable<DifficultyLevel> {
-    return this.http.post<DifficultyLevel>(`${this.base}/difficulty-levels`, body);
+    return this.http
+      .post<{ difficulty_level: DifficultyLevel }>(`${this.base}/difficulty-levels`, body)
+      .pipe(map((response) => response.difficulty_level));
   }
 
   update(id: string, body: DifficultyLevelCreateRequest): Observable<DifficultyLevel> {
-    return this.http.patch<DifficultyLevel>(`${this.base}/difficulty-levels/${id}`, body);
+    return this.http
+      .patch<{ difficulty_level: DifficultyLevel }>(`${this.base}/difficulty-levels/${id}`, body)
+      .pipe(map((response) => response.difficulty_level));
   }
 
   delete(id: string): Observable<void> {

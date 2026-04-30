@@ -36,7 +36,7 @@
 }
 
 .form-left {
-  flex: 0 0 240px;
+  flex: 0 0 440px;
 }
 
 .form-left nz-select,
@@ -105,4 +105,14 @@
 
 .field-row nz-input-number {
   flex: 0 0 120px;
+}
+
+.zones-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zones-row nz-select {
+  flex: 1 1 auto;
 }

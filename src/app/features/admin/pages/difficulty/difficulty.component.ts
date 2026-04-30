@@ -9,7 +9,7 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { NzMessageService } from 'ng-zorro-antd/message';
+import { NotificationService } from '../../../../core/services/notification.service';
 import { DifficultyApiService } from '../../../../core/services/difficulty-api.service';
 import { KeyboardZoneApiService } from '../../../../core/services/keyboard-zone-api.service';
 import { DifficultyLevel, KeyboardZone, DifficultyLevelCreateRequest } from '../../../../core/models';
@@ -42,18 +42,18 @@ export class DifficultyComponent implements OnInit {
   readonly MAX_EXERCISE_LENGTH = 180;
 
   private readonly zoneGroupDefs = [
-    { key: 'zone-1', label: '1 зона (синяя и темно-синяя)', names: ['en_green', 'en_blue'] },
-    { key: 'zone-2', label: '2 зона (зеленая и голубая)', names: ['en_yellow', 'en_indigo'] },
-    { key: 'zone-3', label: '3 зона (оранжевая и желтая)', names: ['en_orange', 'en_purple'] },
-    { key: 'zone-4', label: '4 зона (красная + светло-зеленая)', names: ['en_red', 'en_pink'] },
-    { key: 'zone-5', label: '5 зона (пробел)', names: ['en_thumb'] }
+    { label: '1 зона (синяя и темно-синяя)', names: ['en_green', 'en_blue'], primary: 'en_green' },
+    { label: '2 зона (зеленая и голубая)', names: ['en_yellow', 'en_indigo'], primary: 'en_yellow' },
+    { label: '3 зона (оранжевая и желтая)', names: ['en_orange', 'en_purple'], primary: 'en_orange' },
+    { label: '4 зона (красная + светло-зеленая)', names: ['en_red', 'en_pink'], primary: 'en_red' },
+    { label: '5 зона (пробел)', names: ['en_thumb'], primary: 'en_thumb' }
   ] as const;
 
   readonly levelsMenu = [1, 2, 3, 4, 5];
 
   levels: DifficultyLevel[] = [];
   zones: KeyboardZone[] = [];
-  zoneGroups: { key: string; label: string; ids: string[] }[] = [];
+  zoneGroups: { id: string; label: string; ids: string[] }[] = [];
   selectedIndex = 0;
   loading = true;
   saving = false;
@@ -70,7 +70,7 @@ export class DifficultyComponent implements OnInit {
     private fb: FormBuilder,
     private difficultyApi: DifficultyApiService,
     private zonesApi: KeyboardZoneApiService,
-    private message: NzMessageService
+    private notifications: NotificationService
   ) {
     this.form = this.fb.nonNullable.group({
       keyboard_zone_ids: this.fb.nonNullable.control<string[]>([], [Validators.required]),
@@ -98,6 +98,8 @@ export class DifficultyComponent implements OnInit {
         this.selectedIndex = 0;
         if (this.levels.length > 0) {
           this.patchForm(this.levels[0]);
+        } else {
+          this.resetForm();
         }
         this.loading = false;
       },
@@ -112,43 +114,77 @@ export class DifficultyComponent implements OnInit {
     const level = this.levels[index];
     if (level) {
       this.patchForm(level);
+    } else {
+      this.resetForm();
     }
   }
 
+  clearZones(): void {
+    this.form.patchValue({ keyboard_zone_ids: [] });
+    this.form.get('keyboard_zone_ids')?.markAsDirty();
+  }
+
   onSave(): void {
-    if (this.form.invalid || !this.levels[this.selectedIndex]) {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.notifications.warning('Проверьте значения формы');
       return;
     }
     this.saving = true;
     const level = this.levels[this.selectedIndex];
-    const value = this.form.value;
-    const selectedKeys = value.keyboard_zone_ids ?? [];
-    const selectedIds = this.mapGroupKeysToIds(selectedKeys);
+    const value = this.form.getRawValue();
+    const selectedGroupIds = value.keyboard_zone_ids ?? [];
+    const allSelectedZoneIds: string[] = [];
+    selectedGroupIds.forEach(primaryId => {
+      const group = this.zoneGroups.find(g => g.id === primaryId);
+      if (group) {
+        allSelectedZoneIds.push(...group.ids);
+      } else {
+        allSelectedZoneIds.push(primaryId);
+      }
+    });
+    const uniqueIds = Array.from(new Set(allSelectedZoneIds));
+    if (uniqueIds.length === 0) {
+      this.saving = false;
+      this.notifications.warning('Выберите хотя бы одну зону');
+      return;
+    }
+    const min = Number(value.min_exercise_length ?? this.MIN_EXERCISE_LENGTH);
+    const max = Number(value.max_exercise_length ?? this.MAX_EXERCISE_LENGTH);
+    const mistakes = Number(value.allowed_mistakes ?? 0);
+    const keyPress = Number(value.key_press_time ?? 1);
     const payload: DifficultyLevelCreateRequest = {
-      number: this.selectedIndex + 1,
-      keyboard_zone_ids: selectedIds,
-      min_exercise_length: value.min_exercise_length ?? this.MIN_EXERCISE_LENGTH,
-      max_exercise_length: value.max_exercise_length ?? this.MAX_EXERCISE_LENGTH,
-      allowed_mistakes: value.allowed_mistakes ?? 0,
-      key_press_time: value.key_press_time ?? 1
+      keyboard_zone_ids: uniqueIds,
+      min_exercise_length: Number.isFinite(min) ? min : this.MIN_EXERCISE_LENGTH,
+      max_exercise_length: Number.isFinite(max) ? max : this.MAX_EXERCISE_LENGTH,
+      allowed_mistakes: Number.isFinite(mistakes) ? mistakes : 0,
+      key_press_time: Number.isFinite(keyPress) ? keyPress : 1
     };
-    this.difficultyApi.update(level.id, payload).subscribe({
+
+    const request$ = level
+      ? this.difficultyApi.update(level.id, payload)
+      : this.difficultyApi.create(payload);
+
+    request$.subscribe({
       next: (updated) => {
         this.levels[this.selectedIndex] = updated;
-        this.message.success('Настройки сохранены');
+        this.patchForm(updated);
+        this.form.markAsPristine();
+        this.notifications.success('Настройки сохранены');
         this.saving = false;
       },
-      error: () => {
-        this.message.error('Ошибка сохранения');
+      error: (err) => {
+        const message = err?.error?.error?.message ?? 'Ошибка сохранения';
+        this.notifications.error(message);
         this.saving = false;
       }
     });
   }
 
   private patchForm(level: DifficultyLevel): void {
-    const selectedKeys = this.mapIdsToGroupKeys(level.keyboard_zone_ids ?? []);
+    const selectedIds = this.mapIdsToGroupPrimaryIds(level.keyboard_zone_ids ?? []);
     this.form.patchValue({
-      keyboard_zone_ids: selectedKeys,
+      keyboard_zone_ids: selectedIds,
       min_exercise_length: level.min_exercise_length ?? this.MIN_EXERCISE_LENGTH,
       max_exercise_length: level.max_exercise_length ?? this.MAX_EXERCISE_LENGTH,
       allowed_mistakes: level.allowed_mistakes ?? 0,
@@ -156,31 +192,40 @@ export class DifficultyComponent implements OnInit {
     });
   }
 
-  private buildZoneGroups(zones: KeyboardZone[]): { key: string; label: string; ids: string[] }[] {
-    const byName = new Map(zones.map((zone) => [zone.name, zone.id]));
-    return this.zoneGroupDefs.map((def) => ({
-      key: def.key,
-      label: def.label,
-      ids: def.names.map((name) => byName.get(name)).filter((id): id is string => !!id)
-    }));
+  private resetForm(): void {
+    this.form.reset({
+      keyboard_zone_ids: [],
+      min_exercise_length: this.MIN_EXERCISE_LENGTH,
+      max_exercise_length: this.MAX_EXERCISE_LENGTH,
+      allowed_mistakes: 5,
+      key_press_time: 1.0
+    });
   }
 
-  private mapIdsToGroupKeys(ids: string[]): string[] {
+  private buildZoneGroups(zones: KeyboardZone[]): { id: string; label: string; ids: string[] }[] {
+    const byName = new Map(zones.map((zone) => [zone.name, zone.id]));
+    return this.zoneGroupDefs.map((def) => {
+      const ids = def.names.map((name) => byName.get(name)).filter((id): id is string => !!id);
+      const primaryId = byName.get(def.primary);
+      return {
+        id: primaryId ?? '',
+        label: def.label,
+        ids
+      };
+    }).filter((group) => group.id);
+  }
+
+  private mapIdsToGroupPrimaryIds(ids: string[]): string[] {
     const idSet = new Set(ids);
     return this.zoneGroups
       .filter((group) => group.ids.some((id) => idSet.has(id)))
-      .map((group) => group.key);
-  }
-
-  private mapGroupKeysToIds(keys: string[]): string[] {
-    const ids = keys.flatMap((key) => this.zoneGroups.find((group) => group.key === key)?.ids ?? []);
-    return Array.from(new Set(ids));
+      .map((group) => group.id);
   }
 
   private minMaxLengthValidator(group: AbstractControl): ValidationErrors | null {
     const min = group.get('min_exercise_length')?.value;
     const max = group.get('max_exercise_length')?.value;
-    if (min != null && max != null && min >= max) {
+    if (min != null && max != null && min > max) {
       return { minMaxLength: true };
     }
     return null;

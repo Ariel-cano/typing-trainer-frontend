@@ -25,15 +25,19 @@
           <div class="form-left">
             <div class="field">
               <div class="field-label">Зоны клавиатуры</div>
-              <nz-select
-                formControlName="keyboard_zone_ids"
-                nzMode="multiple"
-                nzSize="small"
-                nzPlaceHolder="Выбор зон клавиатуры">
-                @for (zone of zoneGroups; track zone.key) {
-                  <nz-option [nzValue]="zone.key" [nzLabel]="zone.label"></nz-option>
-                }
-              </nz-select>
+              <div class="zones-row">
+                <nz-select
+                  formControlName="keyboard_zone_ids"
+                  nzMode="multiple"
+                  nzSize="small"
+                  [nzAllowClear]="true"
+                  nzPlaceHolder="Выбор зон клавиатуры">
+                  @for (zone of zoneGroups; track zone.id) {
+                    <nz-option [nzValue]="zone.id" [nzLabel]="zone.label"></nz-option>
+                  }
+                </nz-select>
+                <button nz-button nzSize="small" type="button" (click)="clearZones()">Очистить</button>
+              </div>
               <div class="field-error">
                 @if (form.get('keyboard_zone_ids')?.touched && form.get('keyboard_zone_ids')?.invalid) {
                   <span>Выберите хотя бы одну зону</span>
@@ -132,7 +136,8 @@
             nzType="primary"
             [nzBlock]="true"
             [nzLoading]="saving"
-            [disabled]="form.invalid || saving">
+            [disabled]="form.invalid || saving"
+            type="submit">
             Сохранить
           </button>
         </div>
