@@ -30,8 +30,8 @@
                 nzMode="multiple"
                 nzSize="small"
                 nzPlaceHolder="Выбор зон клавиатуры">
-                @for (zone of zones; track zone.id) {
-                  <nz-option [nzValue]="zone.id" [nzLabel]="zone.name"></nz-option>
+                @for (zone of zoneGroups; track zone.key) {
+                  <nz-option [nzValue]="zone.key" [nzLabel]="zone.label"></nz-option>
                 }
               </nz-select>
               <div class="field-error">
