@@ -36,7 +36,6 @@
                     <nz-option [nzValue]="zone.id" [nzLabel]="zone.label"></nz-option>
                   }
                 </nz-select>
-                <button nz-button nzSize="small" type="button" (click)="clearZones()">Очистить</button>
               </div>
               <div class="field-error">
                 @if (form.get('keyboard_zone_ids')?.touched && form.get('keyboard_zone_ids')?.invalid) {

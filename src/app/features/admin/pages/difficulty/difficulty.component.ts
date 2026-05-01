@@ -119,11 +119,6 @@ export class DifficultyComponent implements OnInit {
     }
   }
 
-  clearZones(): void {
-    this.form.patchValue({ keyboard_zone_ids: [] });
-    this.form.get('keyboard_zone_ids')?.markAsDirty();
-  }
-
   onSave(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
