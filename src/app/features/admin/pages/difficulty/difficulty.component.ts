@@ -45,7 +45,7 @@ export class DifficultyComponent implements OnInit {
     { label: '1 зона (синяя и темно-синяя)', names: ['en_green', 'en_blue'], primary: 'en_green' },
     { label: '2 зона (зеленая и голубая)', names: ['en_yellow', 'en_indigo'], primary: 'en_yellow' },
     { label: '3 зона (оранжевая и желтая)', names: ['en_orange', 'en_purple'], primary: 'en_orange' },
-    { label: '4 зона (красная + светло-зеленая)', names: ['en_red', 'en_pink'], primary: 'en_red' },
+    { label: '4 зона (красная и светло-зеленая)', names: ['en_red', 'en_pink'], primary: 'en_red' },
     { label: '5 зона (пробел)', names: ['en_thumb'], primary: 'en_thumb' }
   ] as const;
 
