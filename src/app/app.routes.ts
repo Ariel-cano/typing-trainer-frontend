@@ -38,7 +38,8 @@ export const routes: Routes = [
     canActivate: [authGuard, adminGuard],
     children: [
       { path: 'difficulty', loadComponent: () => import('./features/admin/pages/difficulty/difficulty.component').then(m => m.DifficultyComponent) },
-      { path: 'exercises',  loadComponent: () => import('./features/admin/pages/exercises/exercises.component').then(m => m.ExercisesComponent) },
+      { path: 'exercises/create', loadComponent: () => import('./features/admin/pages/exercises/create-exercise/create-exercise.component').then(m => m.CreateExerciseComponent) },
+      { path: 'exercises/update',  loadComponent: () => import('./features/admin/pages/exercises/exercises.component').then(m => m.ExercisesComponent) },
       { path: 'statistics', loadComponent: () => import('./features/admin/pages/statistics/statistics.component').then(m => m.StatisticsComponent) },
       { path: 'about',      loadComponent: () => import('./pages/welcome/welcome.component').then(m => m.WelcomeComponent) },
       { path: '', redirectTo: 'difficulty', pathMatch: 'full' }

@@ -1,0 +1,289 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { DifficultyApiService } from '../../../../../core/services/difficulty-api.service';
+import { ExerciseApiService } from '../../../../../core/services/exercise-api.service';
+import { KeyboardZoneApiService } from '../../../../../core/services/keyboard-zone-api.service';
+import { NotificationService } from '../../../../../core/services/notification.service';
+import { DifficultyLevel, ExerciseCreateRequest, KeyboardZone } from '../../../../../core/models';
+
+@Component({
+  selector: 'app-create-exercise-page',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NzButtonModule,
+    NzCardModule,
+    NzInputModule,
+    NzInputNumberModule,
+    NzSegmentedModule,
+    NzSpinModule
+  ],
+  templateUrl: './create-exercise.component.html',
+  styleUrls: ['./create-exercise.component.scss']
+})
+export class CreateExerciseComponent implements OnInit {
+  readonly MIN_EXERCISE_LENGTH = 10;
+  readonly MAX_EXERCISE_LENGTH = 180;
+  readonly LEVELS_COUNT = 5;
+
+  readonly mode = signal<'manual' | 'auto'>('manual');
+  readonly selectedLevel = signal<DifficultyLevel | null>(null);
+  readonly generatedText = signal('');
+
+  readonly modeOptions = [
+    { label: 'Ручной режим', value: 'manual' },
+    { label: 'Автоматический режим', value: 'auto' }
+  ];
+
+  levels: DifficultyLevel[] = [];
+  zones: KeyboardZone[] = [];
+  loading = true;
+  saving = false;
+  currentMinLength = this.MIN_EXERCISE_LENGTH;
+  currentMaxLength = this.MAX_EXERCISE_LENGTH;
+
+  private readonly fb = inject(FormBuilder);
+
+  readonly form = this.fb.nonNullable.group({
+    text: this.fb.nonNullable.control('', [Validators.required]),
+    levelNumber: this.fb.nonNullable.control(1, [Validators.required, Validators.min(1), Validators.max(this.LEVELS_COUNT)]),
+    length: this.fb.nonNullable.control(this.MIN_EXERCISE_LENGTH, [Validators.required])
+  });
+
+  private readonly symbolMap: Record<string, string | null> = {
+    Comma: ',',
+    Period: '.',
+    Semicolon: ';',
+    Slash: '/',
+    Minus: '-',
+    Equals: '=',
+    Backslash: '\\',
+    Space: ' ',
+    Tab: null,
+    Enter: null,
+    Shift: null,
+    Backspace: null,
+    CapsLock: null
+  };
+
+  constructor(
+    private readonly difficultyApi: DifficultyApiService,
+    private readonly exerciseApi: ExerciseApiService,
+    private readonly zonesApi: KeyboardZoneApiService,
+    private readonly notifications: NotificationService,
+    private readonly router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.loadData();
+    this.form.controls.levelNumber.valueChanges.subscribe((value) => {
+      this.onLevelChange(value);
+    });
+  }
+
+  get textLength(): number {
+    return this.form.controls.text.value.length;
+  }
+
+  onModeChange(value: string): void {
+    if (value !== 'manual' && value !== 'auto') {
+      return;
+    }
+    this.mode.set(value);
+    this.updateLengthControlState();
+  }
+
+  onGenerate(): void {
+    if (this.saving) {
+      return;
+    }
+    const level = this.selectedLevel();
+    if (!level) {
+      this.notifications.warning('Выберите уровень сложности');
+      return;
+    }
+    const lengthValue = this.form.controls.length.value;
+    const length = this.clampNumber(lengthValue, this.currentMinLength, this.currentMaxLength);
+    const zones = this.zones.filter((zone) => level.keyboard_zone_ids?.includes(zone.id));
+    const text = this.generateText(length, zones);
+    if (!text) {
+      this.notifications.warning('Недостаточно символов для генерации');
+      return;
+    }
+    this.generatedText.set(text);
+    this.form.controls.text.setValue(text);
+    this.form.controls.text.markAsDirty();
+  }
+
+  onSave(): void {
+    if (this.saving) {
+      return;
+    }
+    const level = this.selectedLevel();
+    if (!level) {
+      this.notifications.warning('Выберите уровень сложности');
+      return;
+    }
+    const rawText = this.form.controls.text.value ?? '';
+    const text = rawText.trim();
+    if (!text) {
+      this.notifications.warning('Введите текст упражнения');
+      return;
+    }
+    if (text.length > this.currentMaxLength) {
+      this.notifications.warning('Текст превышает максимальную длину для этого уровня');
+      return;
+    }
+    if (text.length < this.currentMinLength) {
+      this.notifications.warning('Текст слишком короткий для этого уровня');
+      return;
+    }
+    const payload: ExerciseCreateRequest = {
+      text,
+      level_id: level.id
+    };
+    this.saving = true;
+    this.exerciseApi.create(payload).subscribe({
+      next: () => {
+        this.notifications.success('Упражнение создано');
+        this.saving = false;
+        this.router.navigate(['/admin/exercises']);
+      },
+      error: () => {
+        this.notifications.error('Ошибка при создании упражнения');
+        this.saving = false;
+      }
+    });
+  }
+
+  isSaveDisabled(): boolean {
+    if (this.saving || this.form.invalid) {
+      return true;
+    }
+    if (this.mode() === 'auto') {
+      return !this.generatedText().trim();
+    }
+    return false;
+  }
+
+  private loadData(): void {
+    this.loading = true;
+    forkJoin({
+      levels: this.difficultyApi.getAll(),
+      zones: this.zonesApi.getAll()
+    }).subscribe({
+      next: ({ levels, zones }) => {
+        this.levels = levels;
+        this.zones = zones;
+        const firstLevel = this.getLevelByNumber(1);
+        this.selectedLevel.set(firstLevel);
+        this.updateConstraints(firstLevel);
+        this.updateLengthControlState();
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  private onLevelChange(levelNumber: number): void {
+    const safeValue = this.clampNumber(levelNumber, 1, this.LEVELS_COUNT);
+    if (safeValue !== levelNumber) {
+      this.form.controls.levelNumber.setValue(safeValue, { emitEvent: false });
+    }
+    const level = this.getLevelByNumber(safeValue);
+    this.selectedLevel.set(level);
+    this.updateConstraints(level);
+  }
+
+  private updateConstraints(level: DifficultyLevel | null): void {
+    const min = level?.min_exercise_length ?? this.MIN_EXERCISE_LENGTH;
+    const max = level?.max_exercise_length ?? this.MAX_EXERCISE_LENGTH;
+    this.currentMinLength = min;
+    this.currentMaxLength = max;
+
+    const textControl = this.form.controls.text;
+    textControl.setValidators([Validators.required, Validators.minLength(min), Validators.maxLength(max)]);
+    textControl.updateValueAndValidity({ emitEvent: false });
+
+    const lengthControl = this.form.controls.length;
+    lengthControl.setValidators([Validators.required, Validators.min(min), Validators.max(max)]);
+    const clampedLength = this.clampNumber(lengthControl.value, min, max);
+    lengthControl.setValue(clampedLength, { emitEvent: false });
+    lengthControl.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private updateLengthControlState(): void {
+    const lengthControl = this.form.controls.length;
+    if (this.mode() === 'auto') {
+      lengthControl.enable({ emitEvent: false });
+    } else {
+      lengthControl.disable({ emitEvent: false });
+    }
+  }
+
+  private getLevelByNumber(levelNumber: number): DifficultyLevel | null {
+    const index = levelNumber - 1;
+    return this.levels[index] ?? null;
+  }
+
+  private generateText(length: number, zones: KeyboardZone[]): string {
+    const chars = zones.flatMap((zone) => this.parseZoneSymbols(zone));
+    if (chars.length === 0 || length <= 0) {
+      return '';
+    }
+    let result = '';
+    let wordLen = 0;
+    let targetWordLen = this.randomWordLength();
+    for (let i = 0; i < length; i++) {
+      if (wordLen > 0 && wordLen >= targetWordLen) {
+        result += ' ';
+        wordLen = 0;
+        targetWordLen = this.randomWordLength();
+        continue;
+      }
+      const nextChar = chars[Math.floor(Math.random() * chars.length)];
+      result += nextChar;
+      wordLen++;
+    }
+    return result.trim().slice(0, length);
+  }
+
+  private parseZoneSymbols(zone: KeyboardZone): string[] {
+    return zone.symbols
+      .split(',')
+      .map((symbol) => symbol.trim())
+      .filter(Boolean)
+      .flatMap((symbol) => {
+        if (symbol.length === 1) {
+          return [symbol];
+        }
+        const mapped = this.symbolMap[symbol];
+        return mapped ? [mapped] : [];
+      });
+  }
+
+  private randomWordLength(): number {
+    return Math.floor(Math.random() * 4 + 4);
+  }
+
+  private clampNumber(value: number, min: number, max: number): number {
+    if (Number.isNaN(value)) {
+      return min;
+    }
+    return Math.min(Math.max(value, min), max);
+  }
+}
+

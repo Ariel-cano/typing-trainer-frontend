@@ -1,0 +1,94 @@
+<div class="page">
+  <div class="mode-switch">
+    <nz-segmented
+      [nzOptions]="modeOptions"
+      [ngModel]="mode()"
+      (ngModelChange)="onModeChange($event)"
+    />
+  </div>
+
+  <nz-card class="form-card">
+    @if (loading) {
+      <div class="loading">
+        <nz-spin nzTip="Загрузка..." />
+      </div>
+    } @else {
+      <form [formGroup]="form" class="exercise-form">
+        <div class="form-row">
+          <label class="form-label">Текст упражнения</label>
+          <textarea
+            nz-input
+            formControlName="text"
+            [nzAutosize]="{ minRows: 6, maxRows: 10 }"
+            [readonly]="mode() === 'auto'"
+            [attr.maxlength]="currentMaxLength"
+            [placeholder]="mode() === 'auto' ? 'Нажмите Сгенерировать для создания текста' : ''"
+          ></textarea>
+          <div class="text-counter">Символов: {{ textLength }} / {{ currentMaxLength }}</div>
+          <div class="field-error">
+            @if (form.get('text')?.touched && form.controls.text.invalid) {
+              @if (form.controls.text.errors?.['required']) {
+                <span>Введите текст упражнения</span>
+              } @else if (form.controls.text.errors?.['minlength']) {
+                <span>Минимальная длина: {{ currentMinLength }}</span>
+              } @else if (form.controls.text.errors?.['maxlength']) {
+                <span>Максимальная длина: {{ currentMaxLength }}</span>
+              }
+            }
+          </div>
+        </div>
+        <div class="form-row inline">
+          <label class="form-label">Уровень сложности:</label>
+          <nz-input-number
+            formControlName="levelNumber"
+            [nzMin]="1"
+            [nzMax]="LEVELS_COUNT"
+            [nzStep]="1"
+          />
+        </div>
+
+        @if (mode() === 'auto') {
+          <div class="form-row inline">
+            <label class="form-label">Длина упражнения:</label>
+            <nz-input-number
+              formControlName="length"
+              [nzMin]="currentMinLength"
+              [nzMax]="currentMaxLength"
+              [nzStep]="1"
+            />
+          </div>
+        }
+
+        @if (mode() === 'auto') {
+          <div class="button-row">
+            <button
+              nz-button
+              nzType="primary"
+              [nzBlock]="true"
+              [disabled]="form.controls.length.invalid || saving"
+              (click)="onGenerate()"
+              type="button"
+            >
+              Сгенерировать
+            </button>
+          </div>
+        }
+
+        <div class="button-row">
+          <button
+            nz-button
+            nzType="primary"
+            [nzBlock]="true"
+            [disabled]="isSaveDisabled()"
+            [nzLoading]="saving"
+            type="button"
+            (click)="onSave()"
+          >
+            Сохранить
+          </button>
+        </div>
+      </form>
+    }
+  </nz-card>
+</div>
+
