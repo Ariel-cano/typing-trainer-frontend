@@ -25,6 +25,7 @@
             [placeholder]="mode() === 'auto' ? 'Нажмите Сгенерировать для создания текста' : ''"
           ></textarea>
           <div class="text-counter">Символов: {{ textLength }} / {{ currentMaxLength }}</div>
+          <div class="allowed-symbols">Доступные символы: {{ allowedSymbolsDisplay }}</div>
           <div class="field-error">
             @if (form.get('text')?.touched && form.controls.text.invalid) {
               @if (form.controls.text.errors?.['required']) {
@@ -33,6 +34,8 @@
                 <span>Минимальная длина: {{ currentMinLength }}</span>
               } @else if (form.controls.text.errors?.['maxlength']) {
                 <span>Максимальная длина: {{ currentMaxLength }}</span>
+              } @else if (form.controls.text.errors?.['invalidSymbols']) {
+                <span>Введен недопустимый символ (спец. клавиша) для данного уровня сложности</span>
               }
             }
           </div>

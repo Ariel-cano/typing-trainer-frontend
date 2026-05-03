@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -52,6 +52,8 @@ export class CreateExerciseComponent implements OnInit {
   saving = false;
   currentMinLength = this.MIN_EXERCISE_LENGTH;
   currentMaxLength = this.MAX_EXERCISE_LENGTH;
+  allowedSymbolsDisplay = '';
+  private allowedSymbols: string[] = [];
 
   private readonly fb = inject(FormBuilder);
 
@@ -136,8 +138,8 @@ export class CreateExerciseComponent implements OnInit {
       return;
     }
     const rawText = this.form.controls.text.value ?? '';
-    const text = rawText.trim();
-    if (!text) {
+    const text = rawText;
+    if (!rawText.trim()) {
       this.notifications.warning('Введите текст упражнения');
       return;
     }
@@ -214,8 +216,15 @@ export class CreateExerciseComponent implements OnInit {
     this.currentMinLength = min;
     this.currentMaxLength = max;
 
+    this.setAllowedSymbols(level);
+
     const textControl = this.form.controls.text;
-    textControl.setValidators([Validators.required, Validators.minLength(min), Validators.maxLength(max)]);
+    textControl.setValidators([
+      Validators.required,
+      Validators.minLength(min),
+      Validators.maxLength(max),
+      this.buildAllowedSymbolsValidator(this.allowedSymbols)
+    ]);
     textControl.updateValueAndValidity({ emitEvent: false });
 
     const lengthControl = this.form.controls.length;
@@ -280,6 +289,49 @@ export class CreateExerciseComponent implements OnInit {
       result += source[Math.floor(Math.random() * source.length)];
     }
     return result;
+  }
+
+  private buildAllowedSymbolsValidator(allowed: string[]): ValidatorFn {
+    const allowedSet = new Set(allowed);
+    return (control) => {
+      const value = control.value ?? '';
+      if (!value) {
+        return null;
+      }
+      if (allowedSet.size === 0) {
+        return { invalidSymbols: true };
+      }
+      for (const char of value) {
+        if (!allowedSet.has(char)) {
+          return { invalidSymbols: true };
+        }
+      }
+      return null;
+    };
+  }
+
+  private setAllowedSymbols(level: DifficultyLevel | null): void {
+    if (!level) {
+      this.allowedSymbols = [];
+      this.allowedSymbolsDisplay = '';
+      return;
+    }
+    const symbols = this.zones
+      .filter((zone) => level.keyboard_zone_ids?.includes(zone.id))
+      .flatMap((zone) => this.parseZoneSymbols(zone));
+
+    const unique = Array.from(new Set(symbols));
+    this.allowedSymbols = unique;
+    this.allowedSymbolsDisplay = this.formatAllowedSymbols(unique);
+  }
+
+  private formatAllowedSymbols(symbols: string[]): string {
+    if (symbols.length === 0) {
+      return '—';
+    }
+    return symbols
+      .map((symbol) => (symbol === ' ' ? 'space' : symbol))
+      .join(', ');
   }
 
   private parseZoneSymbols(zone: KeyboardZone): string[] {
