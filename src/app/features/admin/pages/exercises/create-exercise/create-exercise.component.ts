@@ -292,7 +292,7 @@ export class CreateExerciseComponent implements OnInit {
   }
 
   private buildAllowedSymbolsValidator(allowed: string[]): ValidatorFn {
-    const allowedSet = new Set(allowed);
+    const allowedSet = new Set(allowed.map((symbol) => symbol.toLowerCase()));
     return (control) => {
       const value = control.value ?? '';
       if (!value) {
@@ -302,7 +302,7 @@ export class CreateExerciseComponent implements OnInit {
         return { invalidSymbols: true };
       }
       for (const char of value) {
-        if (!allowedSet.has(char)) {
+        if (!allowedSet.has(char.toLowerCase())) {
           return { invalidSymbols: true };
         }
       }
