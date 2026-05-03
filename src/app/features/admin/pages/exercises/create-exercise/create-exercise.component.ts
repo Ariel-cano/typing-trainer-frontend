@@ -240,25 +240,46 @@ export class CreateExerciseComponent implements OnInit {
   }
 
   private generateText(length: number, zones: KeyboardZone[]): string {
-    const chars = zones.flatMap((zone) => this.parseZoneSymbols(zone));
-    if (chars.length === 0 || length <= 0) {
+    const allowedChars = zones.flatMap((zone) => this.parseZoneSymbols(zone));
+    if (allowedChars.length === 0 || length <= 0) {
       return '';
     }
+
+    const allowsSpace = allowedChars.includes(' ');
+    const nonSpaceChars = allowedChars.filter((char) => char !== ' ');
+
+    if (!allowsSpace || nonSpaceChars.length === 0) {
+      const source = nonSpaceChars.length > 0 ? nonSpaceChars : allowedChars;
+      return this.buildRandomString(length, source);
+    }
+
     let result = '';
     let wordLen = 0;
     let targetWordLen = this.randomWordLength();
+
     for (let i = 0; i < length; i++) {
-      if (wordLen > 0 && wordLen >= targetWordLen) {
+      const remaining = length - i;
+      if (wordLen > 0 && wordLen >= targetWordLen && remaining > 1) {
         result += ' ';
         wordLen = 0;
         targetWordLen = this.randomWordLength();
         continue;
       }
-      const nextChar = chars[Math.floor(Math.random() * chars.length)];
+
+      const nextChar = nonSpaceChars[Math.floor(Math.random() * nonSpaceChars.length)];
       result += nextChar;
       wordLen++;
     }
-    return result.trim().slice(0, length);
+
+    return result;
+  }
+
+  private buildRandomString(length: number, source: string[]): string {
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += source[Math.floor(Math.random() * source.length)];
+    }
+    return result;
   }
 
   private parseZoneSymbols(zone: KeyboardZone): string[] {
