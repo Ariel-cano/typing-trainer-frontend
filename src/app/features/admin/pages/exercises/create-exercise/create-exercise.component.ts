@@ -15,6 +15,12 @@ import { KeyboardZoneApiService } from '../../../../../core/services/keyboard-zo
 import { NotificationService } from '../../../../../core/services/notification.service';
 import { DifficultyLevel, ExerciseCreateRequest, KeyboardZone } from '../../../../../core/models';
 
+type AllowedSymbol = {
+  kind: 'char' | 'token';
+  value: string;
+  label: string;
+};
+
 @Component({
   selector: 'app-create-exercise-page',
   standalone: true,
@@ -53,7 +59,7 @@ export class CreateExerciseComponent implements OnInit {
   currentMinLength = this.MIN_EXERCISE_LENGTH;
   currentMaxLength = this.MAX_EXERCISE_LENGTH;
   allowedSymbolsDisplay = '';
-  private allowedSymbols: string[] = [];
+  private allowedSymbols: AllowedSymbol[] = [];
 
   private readonly fb = inject(FormBuilder);
 
@@ -63,20 +69,20 @@ export class CreateExerciseComponent implements OnInit {
     length: this.fb.nonNullable.control(this.MIN_EXERCISE_LENGTH, [Validators.required])
   });
 
-  private readonly symbolMap: Record<string, string | null> = {
-    Comma: ',',
-    Period: '.',
-    Semicolon: ';',
-    Slash: '/',
-    Minus: '-',
-    Equals: '=',
-    Backslash: '\\',
-    Space: ' ',
-    Tab: null,
-    Enter: null,
-    Shift: null,
-    Backspace: null,
-    CapsLock: null
+  private readonly symbolMap: Record<string, AllowedSymbol | null> = {
+    Comma: { kind: 'char', value: ',', label: ',' },
+    Period: { kind: 'char', value: '.', label: '.' },
+    Semicolon: { kind: 'char', value: ';', label: ';' },
+    Slash: { kind: 'char', value: '/', label: '/' },
+    Minus: { kind: 'char', value: '-', label: '-' },
+    Equals: { kind: 'char', value: '=', label: '=' },
+    Backslash: { kind: 'char', value: '\\', label: '\\' },
+    Space: { kind: 'char', value: ' ', label: 'Space' },
+    Tab: { kind: 'token', value: '[Tab]', label: 'Tab' },
+    Enter: { kind: 'token', value: '[Enter]', label: 'Enter' },
+    Shift: { kind: 'token', value: '[Shift]', label: 'Shift' },
+    Backspace: { kind: 'token', value: '[Backspace]', label: 'Backspace' },
+    CapsLock: { kind: 'token', value: '[CapsLock]', label: 'CapsLock' }
   };
 
   constructor(
@@ -95,7 +101,13 @@ export class CreateExerciseComponent implements OnInit {
   }
 
   get textLength(): number {
-    return this.form.controls.text.value.length;
+    return this.countSymbols(this.form.controls.text.value);
+  }
+
+  get specialKeys(): AllowedSymbol[] {
+    return this.allowedSymbols.filter(
+      (symbol) => symbol.kind === 'token' || (symbol.kind === 'char' && symbol.value === ' ')
+    );
   }
 
   onModeChange(value: string): void {
@@ -143,11 +155,12 @@ export class CreateExerciseComponent implements OnInit {
       this.notifications.warning('Введите текст упражнения');
       return;
     }
-    if (text.length > this.currentMaxLength) {
+    const symbolCount = this.countSymbols(text);
+    if (symbolCount > this.currentMaxLength) {
       this.notifications.warning('Текст превышает максимальную длину для этого уровня');
       return;
     }
-    if (text.length < this.currentMinLength) {
+    if (symbolCount < this.currentMinLength) {
       this.notifications.warning('Текст слишком короткий для этого уровня');
       return;
     }
@@ -166,6 +179,25 @@ export class CreateExerciseComponent implements OnInit {
         this.notifications.error('Ошибка при создании упражнения');
         this.saving = false;
       }
+    });
+  }
+
+  insertSpecialKey(symbol: AllowedSymbol, textarea: HTMLTextAreaElement): void {
+    if (this.mode() === 'auto') {
+      return;
+    }
+    const value = this.form.controls.text.value ?? '';
+    const insertValue = symbol.kind === 'token' ? symbol.value : symbol.value;
+    const start = textarea.selectionStart ?? value.length;
+    const end = textarea.selectionEnd ?? value.length;
+    const next = value.slice(0, start) + insertValue + value.slice(end);
+    this.form.controls.text.setValue(next);
+    this.form.controls.text.markAsDirty();
+    const cursor = start + insertValue.length;
+    setTimeout(() => {
+      textarea.selectionStart = cursor;
+      textarea.selectionEnd = cursor;
+      textarea.focus();
     });
   }
 
@@ -221,8 +253,7 @@ export class CreateExerciseComponent implements OnInit {
     const textControl = this.form.controls.text;
     textControl.setValidators([
       Validators.required,
-      Validators.minLength(min),
-      Validators.maxLength(max),
+      this.buildLengthValidator(min, max),
       this.buildAllowedSymbolsValidator(this.allowedSymbols)
     ]);
     textControl.updateValueAndValidity({ emitEvent: false });
@@ -249,17 +280,16 @@ export class CreateExerciseComponent implements OnInit {
   }
 
   private generateText(length: number, zones: KeyboardZone[]): string {
-    const allowedChars = zones.flatMap((zone) => this.parseZoneSymbols(zone));
-    if (allowedChars.length === 0 || length <= 0) {
+    const allowed = zones.flatMap((zone) => this.parseZoneSymbols(zone));
+    if (allowed.length === 0 || length <= 0) {
       return '';
     }
 
-    const allowsSpace = allowedChars.includes(' ');
-    const nonSpaceChars = allowedChars.filter((char) => char !== ' ');
+    const spaceSymbol = allowed.find((symbol) => symbol.kind === 'char' && symbol.value === ' ') ?? null;
+    const nonSpace = allowed.filter((symbol) => symbol.kind !== 'char' || symbol.value !== ' ');
 
-    if (!allowsSpace || nonSpaceChars.length === 0) {
-      const source = nonSpaceChars.length > 0 ? nonSpaceChars : allowedChars;
-      return this.buildRandomString(length, source);
+    if (!spaceSymbol || nonSpace.length === 0) {
+      return this.buildRandomString(length, nonSpace.length > 0 ? nonSpace : allowed);
     }
 
     let result = '';
@@ -269,45 +299,87 @@ export class CreateExerciseComponent implements OnInit {
     for (let i = 0; i < length; i++) {
       const remaining = length - i;
       if (wordLen > 0 && wordLen >= targetWordLen && remaining > 1) {
-        result += ' ';
+        result += spaceSymbol.value;
         wordLen = 0;
         targetWordLen = this.randomWordLength();
         continue;
       }
 
-      const nextChar = nonSpaceChars[Math.floor(Math.random() * nonSpaceChars.length)];
-      result += nextChar;
+      const nextSymbol = nonSpace[Math.floor(Math.random() * nonSpace.length)];
+      result += nextSymbol.value;
       wordLen++;
     }
 
     return result;
   }
 
-  private buildRandomString(length: number, source: string[]): string {
+  private buildRandomString(length: number, source: AllowedSymbol[]): string {
     let result = '';
     for (let i = 0; i < length; i++) {
-      result += source[Math.floor(Math.random() * source.length)];
+      result += source[Math.floor(Math.random() * source.length)].value;
     }
     return result;
   }
 
-  private buildAllowedSymbolsValidator(allowed: string[]): ValidatorFn {
-    const allowedSet = new Set(allowed.map((symbol) => symbol.toLowerCase()));
+  private buildAllowedSymbolsValidator(allowed: AllowedSymbol[]): ValidatorFn {
+    const allowedChars = new Set(
+      allowed
+        .filter((symbol) => symbol.kind === 'char')
+        .map((symbol) => symbol.value.toLowerCase())
+    );
+    const allowedTokens = new Set(
+      allowed
+        .filter((symbol) => symbol.kind === 'token')
+        .map((symbol) => symbol.value.toLowerCase())
+    );
+
     return (control) => {
       const value = control.value ?? '';
       if (!value) {
         return null;
       }
-      if (allowedSet.size === 0) {
+      if (allowedChars.size === 0 && allowedTokens.size === 0) {
         return { invalidSymbols: true };
       }
-      for (const char of value) {
-        if (!allowedSet.has(char.toLowerCase())) {
+
+      const symbols = this.parseTextSymbols(value);
+      if (symbols.invalid) {
+        return { invalidSymbols: true };
+      }
+
+      for (const symbol of symbols.items) {
+        if (symbol.kind === 'token') {
+          if (!allowedTokens.has(symbol.value.toLowerCase())) {
+            return { invalidSymbols: true };
+          }
+        } else if (!allowedChars.has(symbol.value.toLowerCase())) {
           return { invalidSymbols: true };
         }
       }
+
       return null;
     };
+  }
+
+  private buildLengthValidator(min: number, max: number): ValidatorFn {
+    return (control) => {
+      const value = control.value ?? '';
+      if (!value) {
+        return null;
+      }
+      const length = this.countSymbols(value);
+      if (length < min) {
+        return { minlength: true };
+      }
+      if (length > max) {
+        return { maxlength: true };
+      }
+      return null;
+    };
+  }
+
+  private countSymbols(value: string): number {
+    return this.parseTextSymbols(value).items.length;
   }
 
   private setAllowedSymbols(level: DifficultyLevel | null): void {
@@ -320,32 +392,61 @@ export class CreateExerciseComponent implements OnInit {
       .filter((zone) => level.keyboard_zone_ids?.includes(zone.id))
       .flatMap((zone) => this.parseZoneSymbols(zone));
 
-    const unique = Array.from(new Set(symbols));
-    this.allowedSymbols = unique;
-    this.allowedSymbolsDisplay = this.formatAllowedSymbols(unique);
+    const unique = new Map(symbols.map((symbol) => [symbol.value, symbol]));
+    this.allowedSymbols = Array.from(unique.values());
+    this.allowedSymbolsDisplay = this.formatAllowedSymbols(this.allowedSymbols);
   }
 
-  private formatAllowedSymbols(symbols: string[]): string {
+  private formatAllowedSymbols(symbols: AllowedSymbol[]): string {
     if (symbols.length === 0) {
       return '—';
     }
     return symbols
-      .map((symbol) => (symbol === ' ' ? 'space' : symbol))
+      .map((symbol) => {
+        if (symbol.kind === 'token') {
+          return symbol.value;
+        }
+        return symbol.value === ' ' ? 'space' : symbol.value;
+      })
       .join(', ');
   }
 
-  private parseZoneSymbols(zone: KeyboardZone): string[] {
+  private parseZoneSymbols(zone: KeyboardZone): AllowedSymbol[] {
     return zone.symbols
       .split(',')
       .map((symbol) => symbol.trim())
       .filter(Boolean)
-      .flatMap((symbol) => {
+      .map((symbol) => {
         if (symbol.length === 1) {
-          return [symbol];
+          return { kind: 'char', value: symbol, label: symbol } satisfies AllowedSymbol;
         }
-        const mapped = this.symbolMap[symbol];
-        return mapped ? [mapped] : [];
-      });
+        return this.symbolMap[symbol] ?? null;
+      })
+      .filter((symbol): symbol is AllowedSymbol => Boolean(symbol));
+  }
+
+  private parseTextSymbols(value: string): { items: AllowedSymbol[]; invalid: boolean } {
+    const items: AllowedSymbol[] = [];
+    let invalid = false;
+    let index = 0;
+
+    while (index < value.length) {
+      if (value[index] === '[') {
+        const end = value.indexOf(']', index + 1);
+        if (end > index + 1) {
+          const token = value.slice(index, end + 1);
+          items.push({ kind: 'token', value: token, label: token });
+          index = end + 1;
+          continue;
+        }
+        invalid = true;
+      }
+
+      items.push({ kind: 'char', value: value[index], label: value[index] });
+      index += 1;
+    }
+
+    return { items, invalid };
   }
 
   private randomWordLength(): number {

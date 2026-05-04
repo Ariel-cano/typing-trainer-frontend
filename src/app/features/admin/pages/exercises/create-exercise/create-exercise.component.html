@@ -17,15 +17,35 @@
         <div class="form-row">
           <label class="form-label">Текст упражнения</label>
           <textarea
+            #textArea
             nz-input
             formControlName="text"
             [nzAutosize]="{ minRows: 6, maxRows: 10 }"
             [readonly]="mode() === 'auto'"
-            [attr.maxlength]="currentMaxLength"
             [placeholder]="mode() === 'auto' ? 'Нажмите Сгенерировать для создания текста' : ''"
           ></textarea>
           <div class="text-counter">Символов: {{ textLength }} / {{ currentMaxLength }}</div>
           <div class="allowed-symbols">Доступные символы: {{ allowedSymbolsDisplay }}</div>
+          <div class="special-keys">
+            <div class="special-keys-label">Спец. клавиши:</div>
+            <div class="special-keys-buttons">
+              @if (specialKeys.length === 0) {
+                <span class="special-keys-empty">—</span>
+              } @else {
+                @for (key of specialKeys; track key.value) {
+                  <button
+                    nz-button
+                    nzSize="small"
+                    type="button"
+                    [disabled]="mode() === 'auto'"
+                    (click)="insertSpecialKey(key, textArea)"
+                  >
+                    {{ key.label }}
+                  </button>
+                }
+              }
+            </div>
+          </div>
           <div class="field-error">
             @if (form.get('text')?.touched && form.controls.text.invalid) {
               @if (form.controls.text.errors?.['required']) {
