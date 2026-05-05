@@ -176,7 +176,6 @@ export class CreateExerciseComponent implements OnInit {
       next: () => {
         this.notifications.success(this.isEditMode ? 'Упражнение обновлено' : 'Упражнение создано');
         this.saving = false;
-        this.router.navigateByUrl('/admin/exercises');
       },
       error: () => {
         this.notifications.error(this.isEditMode ? 'Ошибка при обновлении упражнения' : 'Ошибка при создании упражнения');
