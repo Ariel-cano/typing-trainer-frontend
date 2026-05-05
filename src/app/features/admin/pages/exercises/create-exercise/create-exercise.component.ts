@@ -9,6 +9,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzSegmentedModule } from 'ng-zorro-antd/segmented';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { DifficultyApiService } from '../../../../../core/services/difficulty-api.service';
 import { ExerciseApiService } from '../../../../../core/services/exercise-api.service';
 import { KeyboardZoneApiService } from '../../../../../core/services/keyboard-zone-api.service';
@@ -27,7 +28,8 @@ import { DifficultyLevel, ExerciseCreateRequest, KeyboardZone } from '../../../.
     NzInputModule,
     NzInputNumberModule,
     NzSegmentedModule,
-    NzSpinModule
+    NzSpinModule,
+    NzIconModule
   ],
   templateUrl: './create-exercise.component.html',
   styleUrls: ['./create-exercise.component.scss']
@@ -60,7 +62,7 @@ export class CreateExerciseComponent implements OnInit {
   private readonly exerciseApi = inject(ExerciseApiService);
   private readonly zonesApi = inject(KeyboardZoneApiService);
   private readonly notifications = inject(NotificationService);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   readonly form = this.fb.nonNullable.group({
@@ -131,6 +133,10 @@ export class CreateExerciseComponent implements OnInit {
     this.form.controls.text.markAsDirty();
   }
 
+  onBack(): void {
+    this.router.navigateByUrl('/admin/exercises');
+  }
+
   onSave(): void {
     if (this.saving) {
       return;
@@ -170,7 +176,7 @@ export class CreateExerciseComponent implements OnInit {
       next: () => {
         this.notifications.success(this.isEditMode ? 'Упражнение обновлено' : 'Упражнение создано');
         this.saving = false;
-        this.router.navigate(['/admin/exercises']);
+        this.router.navigateByUrl('/admin/exercises');
       },
       error: () => {
         this.notifications.error(this.isEditMode ? 'Ошибка при обновлении упражнения' : 'Ошибка при создании упражнения');

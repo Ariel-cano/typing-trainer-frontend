@@ -1,10 +1,20 @@
 <div class="page">
-  <div class="mode-switch">
-    <nz-segmented
-      [nzOptions]="modeOptions"
-      [ngModel]="mode()"
-      (ngModelChange)="onModeChange($event)"
-    />
+  <div class="page-header">
+    @if(router.url !== '/admin/exercises/create') {
+      <button nz-button nzType="text" class="page-icon" type="button" (click)="onBack()">
+        <span nz-icon nzType="arrow-left"></span>
+      </button>
+    } @else {
+      <div class="page-icon-spacer"></div>
+    }
+    <div class="mode-switch">
+      <nz-segmented
+        [nzOptions]="modeOptions"
+        [ngModel]="mode()"
+        (ngModelChange)="onModeChange($event)"
+      />
+    </div>
+    <div class="page-spacer"></div>
   </div>
 
   <nz-card class="form-card">

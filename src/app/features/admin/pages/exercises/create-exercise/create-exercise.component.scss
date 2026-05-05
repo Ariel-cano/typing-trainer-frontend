@@ -7,10 +7,34 @@
   padding: 50px;
 }
 
+.page-header {
+  display: grid;
+  grid-template-columns: 24px 1fr 24px;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-icon {
+  font-size: 24px;
+  color: #000000;
+  padding: 0;
+}
+
+.page-icon-spacer {
+  width: 24px;
+  height: 24px;
+}
+
+.page-spacer {
+  width: 24px;
+  height: 1px;
+}
+
 .mode-switch {
   display: flex;
   justify-content: center;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-bottom: 0;
 }
 
 .form-card {
