@@ -92,7 +92,7 @@ export class ExercisesComponent implements OnInit {
     this.listLoading = true;
     this.exerciseApi.getByLevel(level.id).subscribe({
       next: (exercises) => {
-        this.exercises = exercises;
+        this.exercises = exercises.filter((exercise) => exercise.level_id === level.id);
         this.listLoading = false;
       },
       error: () => {
