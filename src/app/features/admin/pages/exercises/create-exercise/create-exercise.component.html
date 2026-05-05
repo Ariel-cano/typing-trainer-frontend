@@ -15,7 +15,7 @@
     } @else {
       <form [formGroup]="form" class="exercise-form">
         <div class="form-row">
-          <label class="form-label">Текст упражнения</label>
+          <div class="form-label">Текст упражнения</div>
           <textarea
             nz-input
             formControlName="text"
@@ -41,7 +41,7 @@
           </div>
         </div>
         <div class="form-row inline">
-          <label class="form-label">Уровень сложности:</label>
+          <div class="form-label">Уровень сложности:</div>
           <nz-input-number
             formControlName="levelNumber"
             [nzMin]="1"
@@ -52,7 +52,7 @@
 
         @if (mode() === 'auto') {
           <div class="form-row inline">
-            <label class="form-label">Длина упражнения:</label>
+            <div class="form-label">Длина упражнения:</div>
             <nz-input-number
               formControlName="length"
               [nzMin]="currentMinLength"

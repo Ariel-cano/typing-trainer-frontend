@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { Router, ActivatedRoute } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -56,6 +56,12 @@ export class CreateExerciseComponent implements OnInit {
   private allowedSymbols: string[] = [];
 
   private readonly fb = inject(FormBuilder);
+  private readonly difficultyApi = inject(DifficultyApiService);
+  private readonly exerciseApi = inject(ExerciseApiService);
+  private readonly zonesApi = inject(KeyboardZoneApiService);
+  private readonly notifications = inject(NotificationService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly form = this.fb.nonNullable.group({
     text: this.fb.nonNullable.control('', [Validators.required]),
@@ -79,15 +85,12 @@ export class CreateExerciseComponent implements OnInit {
     CapsLock: null
   };
 
-  constructor(
-    private readonly difficultyApi: DifficultyApiService,
-    private readonly exerciseApi: ExerciseApiService,
-    private readonly zonesApi: KeyboardZoneApiService,
-    private readonly notifications: NotificationService,
-    private readonly router: Router
-  ) {}
+  private exerciseId: string | null = null;
+  private isEditMode = false;
 
   ngOnInit(): void {
+    this.exerciseId = this.route.snapshot.paramMap.get('id');
+    this.isEditMode = !!this.exerciseId;
     this.loadData();
     this.form.controls.levelNumber.valueChanges.subscribe((value) => {
       this.onLevelChange(value);
@@ -132,6 +135,10 @@ export class CreateExerciseComponent implements OnInit {
     if (this.saving) {
       return;
     }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     const level = this.selectedLevel();
     if (!level) {
       this.notifications.warning('Выберите уровень сложности');
@@ -156,14 +163,17 @@ export class CreateExerciseComponent implements OnInit {
       level_id: level.id
     };
     this.saving = true;
-    this.exerciseApi.create(payload).subscribe({
+    const request$ = this.isEditMode && this.exerciseId
+      ? this.exerciseApi.update(this.exerciseId, payload)
+      : this.exerciseApi.create(payload);
+    request$.subscribe({
       next: () => {
-        this.notifications.success('Упражнение создано');
+        this.notifications.success(this.isEditMode ? 'Упражнение обновлено' : 'Упражнение создано');
         this.saving = false;
         this.router.navigate(['/admin/exercises']);
       },
       error: () => {
-        this.notifications.error('Ошибка при создании упражнения');
+        this.notifications.error(this.isEditMode ? 'Ошибка при обновлении упражнения' : 'Ошибка при создании упражнения');
         this.saving = false;
       }
     });
@@ -174,23 +184,32 @@ export class CreateExerciseComponent implements OnInit {
       return true;
     }
     if (this.mode() === 'auto') {
-      return !this.generatedText().trim();
+      return !this.form.controls.text.value?.trim();
     }
     return false;
   }
 
   private loadData(): void {
     this.loading = true;
+    const exercise$ = this.exerciseId ? this.exerciseApi.getById(this.exerciseId) : of(null);
     forkJoin({
       levels: this.difficultyApi.getAll(),
-      zones: this.zonesApi.getAll()
+      zones: this.zonesApi.getAll(),
+      exercise: exercise$
     }).subscribe({
-      next: ({ levels, zones }) => {
+      next: ({ levels, zones, exercise }) => {
         this.levels = levels;
         this.zones = zones;
-        const firstLevel = this.getLevelByNumber(1);
-        this.selectedLevel.set(firstLevel);
-        this.updateConstraints(firstLevel);
+        let levelNumber = 1;
+        if (exercise) {
+          const levelIndex = this.levels.findIndex((level) => level.id === exercise.level_id);
+          levelNumber = levelIndex >= 0 ? levelIndex + 1 : 1;
+          this.form.controls.text.setValue(exercise.text);
+          this.form.controls.levelNumber.setValue(levelNumber, { emitEvent: false });
+        }
+        const selected = this.getLevelByNumber(levelNumber);
+        this.selectedLevel.set(selected);
+        this.updateConstraints(selected);
         this.updateLengthControlState();
         this.loading = false;
       },
