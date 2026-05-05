@@ -1,0 +1,102 @@
+.developers-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 16px;
+}
+
+.dev-header{
+  text-align: center;
+  max-width: 900px;
+}
+
+.uni{
+  margin: 0;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+}
+
+.faculty{
+  margin: 4px 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.project{
+  margin: 0 auto 12px auto;
+  max-width: 760px;
+  line-height: 1.4;
+}
+
+.subtitle{
+  margin: 6px 0 0 0;
+  font-size: 1rem;
+  color: #3b3b3b;
+}
+
+.card-container{
+  width: 100%;
+  max-width: 980px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.dev-card{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px;
+  border-radius: 8px;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.dev-card:hover{
+  transform: translateY(-6px);
+}
+
+.avatar-wrap{
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.avatar{
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 6px 14px rgba(16,24,40,0.08);
+  border: 2px solid rgba(11,74,111,0.06);
+}
+
+.card-body{ text-align: center; }
+
+.name{
+  margin: 6px 0 4px 0;
+  font-size: 1.05rem;
+  color: #0d3b56;
+}
+
+.github{
+  display: inline-block;
+  color: #096dd9;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.github:hover{ text-decoration: underline; }
+
+@media (max-width: 880px){
+  .card-container{ grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px){
+  .card-container{ grid-template-columns: 1fr; }
+  .dev-header{ padding: 0 8px; }
+}
