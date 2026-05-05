@@ -1,6 +1,7 @@
 <div class="difficulty-page">
   <nz-card class="levels-card">
     <ul nz-menu nzMode="inline" class="levels-menu">
+      <li nz-submenu nzTitle="Уровень сложности" nzOpen nzIcon="setting">
       @for (levelNumber of levelsMenu; track $index) {
         <li
           nz-menu-item
@@ -13,6 +14,7 @@
           {{ levelNumber }} уровень
         </li>
       }
+      </li>
     </ul>
   </nz-card>
 
