@@ -1,0 +1,11 @@
+<nz-card [nzTitle]="'Упражнение '+ order" [nzExtra]="cardExtra" class="exercise-card">
+  <div class="exercise-text">{{ previewText }}</div>
+</nz-card>
+<ng-template #cardExtra>
+  <button nz-button nzType="text" nzSize="small" (click)="edit.emit()">
+    <span nz-icon nzType="edit"></span>
+  </button>
+  <button nz-button nzType="text" nzSize="small" nzDanger (click)="delete.emit()">
+    <span nz-icon nzType="delete"></span>
+  </button>
+</ng-template>
