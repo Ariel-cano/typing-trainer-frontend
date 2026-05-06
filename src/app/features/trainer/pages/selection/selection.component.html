@@ -1,4 +1,41 @@
-<div class="page">
-  <h2>Selection (stub)</h2>
-</div>
+<div class="selection-page">
+  <nz-card class="levels-card">
+    <ul nz-menu nzMode="inline" class="levels-menu">
+      <li nz-submenu nzTitle="Уровень сложности" nzOpen nzIcon="setting">
+        @for (levelNumber of levelsMenu; track $index) {
+          <li
+            nz-menu-item
+            [nzSelected]="selectedIndex === $index"
+            [attr.aria-selected]="selectedIndex === $index"
+            role="option"
+            tabindex="0"
+            (click)="selectLevel($index)"
+            (keydown.enter)="selectLevel($index)"
+            (keydown.space)="selectLevel($index)">
+            {{ levelNumber }} уровень
+          </li>
+        }
+      </li>
+    </ul>
+  </nz-card>
 
+  <nz-card class="content-card" [nzTitle]="selectedLevelTitle">
+    @if (loading || listLoading) {
+      <div class="loading"><nz-spin></nz-spin></div>
+    } @else if (exercises.length === 0) {
+      <nz-empty nzNotFoundContent="Нет упражнений для этого уровня"></nz-empty>
+    } @else {
+      <div class="cards-grid">
+        @for (exercise of exercises; track exercise.id) {
+          <app-exercise-card
+            [order]="$index + 1"
+            [exercise]="exercise"
+            [mode]="'trainee'"
+            [durationSeconds]="getDurationSeconds(exercise)"
+          >
+          </app-exercise-card>
+        }
+      </div>
+    }
+  </nz-card>
+</div>

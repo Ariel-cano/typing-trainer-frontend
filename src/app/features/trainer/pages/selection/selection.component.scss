@@ -1,2 +1,32 @@
-.page { padding: 16px; }
+.selection-page {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
 
+.levels-card {
+  width: 260px;
+}
+
+.levels-menu {
+  border: none;
+}
+
+.content-card {
+  flex: 1 1 auto;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  max-height: calc(100vh - 240px);
+  overflow: auto;
+  padding-right: 4px;
+}
