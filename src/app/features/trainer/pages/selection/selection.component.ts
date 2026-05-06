@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
@@ -34,6 +35,7 @@ export class SelectionComponent implements OnInit {
 
   private readonly difficultyApi = inject(DifficultyApiService);
   private readonly exerciseApi = inject(ExerciseApiService);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     this.loadLevels();
@@ -49,6 +51,15 @@ export class SelectionComponent implements OnInit {
     }
     this.selectedIndex = index;
     this.loadExercises();
+  }
+
+  onSelect(exercise: Exercise): void {
+    this.router.navigate(['/trainer/execution'], {
+      queryParams: {
+        exerciseId: exercise.id,
+        levelId: exercise.level_id
+      }
+    });
   }
 
   getDurationSeconds(exercise: Exercise): number {

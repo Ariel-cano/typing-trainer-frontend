@@ -32,6 +32,7 @@
             [exercise]="exercise"
             [mode]="'trainee'"
             [durationSeconds]="getDurationSeconds(exercise)"
+            (cardSelect)="onSelect(exercise)"
           >
           </app-exercise-card>
         }

@@ -2,6 +2,10 @@
   height: 100%;
 }
 
+.exercise-card--clickable {
+  cursor: pointer;
+}
+
 .exercise-text {
   white-space: pre-wrap;
   word-break: break-word;

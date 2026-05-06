@@ -16,6 +16,7 @@ export class ExerciseCardComponent {
   @Input({ required: true }) exercise!: Exercise;
   @Output() edit = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();
+  @Output() cardSelect = new EventEmitter<void>();
   @Input() order!: number;
   @Input() mode: 'admin' | 'trainee' = 'admin';
   @Input() durationSeconds?: number | null;
@@ -33,5 +34,11 @@ export class ExerciseCardComponent {
     const minutes = Math.floor(total / 60);
     const seconds = total % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  onCardClick(): void {
+    if (this.mode === 'trainee') {
+      this.cardSelect.emit();
+    }
   }
 }

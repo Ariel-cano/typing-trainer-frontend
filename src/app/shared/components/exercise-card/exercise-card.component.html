@@ -1,4 +1,9 @@
-<nz-card [nzTitle]="'Упражнение '+ order" [nzExtra]="cardExtra" class="exercise-card">
+<nz-card
+  [nzTitle]="'Упражнение '+ order"
+  [nzExtra]="cardExtra"
+  class="exercise-card"
+  [class.exercise-card--clickable]="mode === 'trainee'"
+  (click)="onCardClick()">
   <div class="exercise-text">{{ previewText }}</div>
 </nz-card>
 <ng-template #cardExtra>
