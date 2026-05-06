@@ -1,4 +1,38 @@
-<div class="page">
-  <h2>Execution (stub)</h2>
-</div>
+<div class="execution-page">
+  <div class="top-row">
+    <button class="page-icon" nz-button nzType="text" (click)="goBack()">
+      <span nz-icon nzType="arrow-left"></span>
+    </button>
 
+    <div class="counters">
+      <div class="counter-block">
+        количество символов: {{ charactersTyped() }}/{{ charactersTotal() }}
+      </div>
+      <div class="counter-block counter-timer">
+        {{ timerDisplay() }}
+      </div>
+      <div class="counter-block">
+        количество ошибок: {{ errors() }}/{{ allowedMistakes() }}
+      </div>
+    </div>
+  </div>
+
+  <div class="content-row">
+    <div class="left-panel">
+      <div class="switch-row">
+        <span>Музыка</span>
+        <nz-switch [ngModel]="musicEnabled()" (ngModelChange)="musicEnabled.set($event)"></nz-switch>
+      </div>
+      <div class="switch-row">
+        <span>Клавиатура</span>
+        <nz-switch [ngModel]="keyboardVisible()" (ngModelChange)="keyboardVisible.set($event)"></nz-switch>
+      </div>
+    </div>
+
+    <div class="exercise-field">
+      @for (token of tokens(); track $index) {
+        <span class="token pending">{{ token }}</span>
+      }
+    </div>
+  </div>
+</div>
