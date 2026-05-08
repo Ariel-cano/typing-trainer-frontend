@@ -91,6 +91,11 @@
   max-height: 40px;
 }
 
+.space {
+  display: inline-block;
+  min-width: 0.6em;
+}
+
 .pending {
   color: #bfbfbf;
 }

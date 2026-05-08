@@ -305,6 +305,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
   }
 
   private parseExercise(text: string): string[] {
-    return text ? text.split('') : [];
+    if (!text) return [];
+    return text.split('');
   }
 }

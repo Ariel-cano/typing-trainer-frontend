@@ -37,6 +37,7 @@
           [class.error]="isError($index)"
           [class.current]="isCurrent($index)"
           [class.slow]="isSlowCorrect($index)"
+          [class.space]="token === ' '"
           [class.pending]="!isCorrect($index) && !isError($index) && !isCurrent($index) && !isSlowCorrect($index)"
         >
           {{ token }}
