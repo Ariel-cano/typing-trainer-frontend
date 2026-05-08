@@ -52,7 +52,6 @@ export class ExecutionComponent implements OnInit, OnDestroy {
   private readonly currentIndex = signal(0);
   private readonly errorIndices = signal<Set<number>>(new Set());
   private readonly slowCorrectIndices = signal<Set<number>>(new Set());
-  private readonly allErrorIndices = computed(() => this.errorIndices.length + this.slowCorrectIndices.length);
   private readonly remainingSeconds = signal(0);
   private readonly started = signal(false);
   private timerId: number | null = null;
@@ -148,8 +147,13 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     const pressed = key === ' ' ? ' ' : key;
 
     if (lateError) {
-      this.markSlowCorrect(index, true);
-      return;
+      if (this.normalizeChar(pressed) === this.normalizeChar(expected)) {
+        this.markSlowCorrect(index, true);
+        return;
+      } else {
+        this.markError(index, true);
+        return;
+      }
     }
 
     if (this.normalizeChar(pressed) === this.normalizeChar(expected)) {
