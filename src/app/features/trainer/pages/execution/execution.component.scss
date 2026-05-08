@@ -1,4 +1,3 @@
-
 .execution-page {
   display: flex;
   flex-direction: column;
@@ -78,17 +77,37 @@
   padding: 12px;
   min-height: 120px;
   font-family: monospace;
-  font-size: 16px;
+  font-size: 0;
   background: #ffffff;
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: 0;
 }
 
 .token {
-  white-space: pre;
+  font-size: 22px;
+  padding: 0;
+  margin: 0;
+  max-height: 40px;
 }
 
 .pending {
   color: #bfbfbf;
+}
+
+.correct {
+  color: #52c41a;
+}
+
+.error {
+  color: #ff4d4f;
+}
+
+.current {
+  border-bottom: 2px solid #1890ff;
+  color: #262626;
+}
+
+.slow{
+  color: #c19217;
 }
