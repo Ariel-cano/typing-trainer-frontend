@@ -13,6 +13,7 @@ import { ExerciseApiService } from '../../../../core/services/exercise-api.servi
 import { KeyboardZoneApiService } from '../../../../core/services/keyboard-zone-api.service';
 import { StatisticsApiService } from '../../../../core/services/statistics-api.service';
 import {NzPopoverDirective} from 'ng-zorro-antd/popover';
+import {NotificationService} from '../../../../core/services/notification.service';
 
 @Component({
   selector: 'app-execution',
@@ -46,6 +47,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
   private readonly exerciseApi = inject(ExerciseApiService);
   private readonly difficultyApi = inject(DifficultyApiService);
   private readonly keyboardZoneApi = inject(KeyboardZoneApiService);
+  private readonly notificationService = inject(NotificationService);
   private readonly statisticsApi = inject(StatisticsApiService);
   private readonly authState = inject(AuthStateService);
   private readonly modal = inject(NzModalService);
@@ -246,6 +248,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
       execution_time: duration,
       speed: Math.round((total / duration) * 60)
     };
+    this.notificationService.success('Упражнение завершено! Результаты сохранены.');
 
     this.statisticsApi.create(stat).subscribe({
       next: () => this.router.navigate(['/trainer/statistics']),
