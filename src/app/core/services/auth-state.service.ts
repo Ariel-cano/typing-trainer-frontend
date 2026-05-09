@@ -5,7 +5,7 @@ const TOKEN_KEY = 'kbt_token';
 const USER_KEY = 'kbt_user';
 
 type JwtPayload = {
-  sub?: string;
+  user_id?: string;
   login?: string;
   role?: 'admin' | 'user';
 };
@@ -34,7 +34,7 @@ export class AuthStateService {
   login(token: string, fallbackLogin?: string): void {
     const payload = this.parseJwt(token);
     const user: User = {
-      id: payload?.sub ?? '',
+      id: payload?.user_id ??  '',
       login: payload?.login ?? fallbackLogin ?? '',
       role: payload?.role ?? 'user'
     };
@@ -79,7 +79,7 @@ export class AuthStateService {
         const payload = this.parseJwt(token);
         if (payload) {
           const user: User = {
-            id: payload.sub ?? '',
+            id: payload.user_id ?? '',
             login: payload.login ?? '',
             role: payload.role ?? 'user'
           };
