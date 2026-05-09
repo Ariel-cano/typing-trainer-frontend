@@ -234,7 +234,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     }
 
     if (this.errors() >= this.allowedMistakes()) {
-      this.handleTooManyErrors();
+      this.handleErrorsModal();
     } else if (this.currentIndex() >= this.tokens().length) {
       this.finishExercise();
     }
@@ -249,7 +249,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     }
 
     if (this.errors() >= this.allowedMistakes()) {
-      this.handleTooManyErrors();
+      this.handleErrorsModal();
     } else if (this.currentIndex() >= this.tokens().length) {
       this.finishExercise();
     }
@@ -261,10 +261,10 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     this.currentIndex.update((value) => value + 1);
   }
 
-  private handleTooManyErrors(): void {
+  private handleErrorsModal(timeOver = false): void {
     this.stopTimer();
     this.modal.confirm({
-      nzTitle: 'Превышено допустимое количество ошибок',
+      nzTitle: timeOver ? 'Отведенное время на выполнение упражнения истекло' : 'Превышено допустимое количество ошибок',
       nzContent: 'Попробовать ещё раз?',
       nzOkText: 'Да',
       nzCancelText: 'Нет',
@@ -360,7 +360,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
       this.timerDisplay.set(this.formatTime(this.remainingSeconds()));
       if (this.remainingSeconds() <= 0) {
         this.stopTimer();
-        this.handleTooManyErrors();
+        this.handleErrorsModal(true);
       }
     }, 1000);
   }
