@@ -23,6 +23,8 @@ import {NotificationService} from '../../../../core/services/notification.servic
   styleUrls: ['./execution.component.scss']
 })
 export class ExecutionComponent implements OnInit, OnDestroy {
+  private readonly musicSrc = '/audio/execution_background_music.mp3';
+
   readonly exercise = signal<Exercise | null>(null);
   readonly level = signal<DifficultyLevel | null>(null);
   readonly zones = signal<KeyboardZone[]>([]);
@@ -57,6 +59,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
   private readonly slowCorrectIndices = signal<Set<number>>(new Set());
   private readonly remainingSeconds = signal(0);
   private readonly started = signal(false);
+  private musicAudio: HTMLAudioElement | null = null;
   private timerId: number | null = null;
   private lastPressTime: number | null = null;
   private exerciseId: string | null = null;
@@ -94,10 +97,23 @@ export class ExecutionComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.stopTimer();
+    this.stopMusic(true);
   }
 
   goBack(): void {
+    this.stopMusic(true);
     this.router.navigate(['/trainer/selection']);
+  }
+
+  toggleMusic(enabled: boolean): void {
+    this.musicEnabled.set(enabled);
+
+    if (enabled) {
+      this.startMusic();
+      return;
+    }
+
+    this.stopMusic(true);
   }
 
   isCorrect(index: number): boolean {
@@ -266,6 +282,33 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     this.slowCorrectIndices.set(new Set());
     this.lastPressTime = null;
     this.syncTimer();
+  }
+
+  private startMusic(): void {
+    if (!this.musicAudio) {
+      this.musicAudio = new Audio(this.musicSrc);
+      this.musicAudio.loop = true;
+      this.musicAudio.preload = 'auto';
+      this.musicAudio.volume = 0.35;
+    }
+
+    this.musicAudio.currentTime = 0;
+    void this.musicAudio.play().catch(() => {
+      this.musicEnabled.set(false);
+      this.notificationService.warning('Не удалось запустить музыку');
+      this.stopMusic(true);
+    });
+  }
+
+  private stopMusic(reset = false): void {
+    if (!this.musicAudio) {
+      return;
+    }
+
+    this.musicAudio.pause();
+    if (reset) {
+      this.musicAudio.currentTime = 0;
+    }
   }
 
   private syncTimer(): void {

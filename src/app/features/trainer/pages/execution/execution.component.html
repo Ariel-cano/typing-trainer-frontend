@@ -40,7 +40,7 @@
     <div class="left-panel">
       <div class="switch-row">
         <span>Музыка</span>
-        <nz-switch [ngModel]="musicEnabled()" (ngModelChange)="musicEnabled.set($event)"></nz-switch>
+        <nz-switch [ngModel]="musicEnabled()" (ngModelChange)="toggleMusic($event)"></nz-switch>
       </div>
       <div class="switch-row">
         <span>Клавиатура</span>
