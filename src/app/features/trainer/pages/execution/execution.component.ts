@@ -12,11 +12,12 @@ import { DifficultyApiService } from '../../../../core/services/difficulty-api.s
 import { ExerciseApiService } from '../../../../core/services/exercise-api.service';
 import { KeyboardZoneApiService } from '../../../../core/services/keyboard-zone-api.service';
 import { StatisticsApiService } from '../../../../core/services/statistics-api.service';
+import {NzPopoverDirective} from 'ng-zorro-antd/popover';
 
 @Component({
   selector: 'app-execution',
   standalone: true,
-  imports: [CommonModule, FormsModule, NzButtonModule, NzIconModule, NzModalModule, NzSwitchModule],
+  imports: [CommonModule, FormsModule, NzButtonModule, NzIconModule, NzModalModule, NzSwitchModule, NzPopoverDirective],
   templateUrl: './execution.component.html',
   styleUrls: ['./execution.component.scss']
 })

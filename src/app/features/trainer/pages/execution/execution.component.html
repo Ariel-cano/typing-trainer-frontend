@@ -15,6 +15,25 @@
         количество ошибок: {{ errors() }}/{{ allowedMistakes() }}
       </div>
     </div>
+    <div class="icon">
+    <nz-icon
+      style="cursor: pointer"
+      nzType="question-circle"
+      nz-popover
+      nzPopoverTitle="Легенда"
+      [nzPopoverContent]="legendTemplate"
+      nzPopoverTrigger="click">
+    </nz-icon>
+    </div>
+
+    <ng-template #legendTemplate>
+      <div style="display:flex; flex-direction:column; gap:8px">
+        <span><span class="current">а</span> — текущий символ</span>
+        <span><span class="correct">а</span> — введён правильно</span>
+        <span><span class="slow">а</span> — введён правильно, но медленно</span>
+        <span><span class="error">а</span> — введён неправильно</span>
+      </div>
+    </ng-template>
   </div>
 
   <div class="content-row">
