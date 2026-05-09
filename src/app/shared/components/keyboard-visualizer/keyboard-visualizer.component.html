@@ -1,0 +1,21 @@
+@if (visible) {
+  <div class="keyboard-wrap">
+    @for (row of rows; track $index) {
+      <div class="keyboard-row">
+        @for (key of row; track key) {
+          <button
+            type="button"
+            class="key"
+            [class.highlighted]="isHighlighted(key)"
+            [class.key-space]="key === 'Space'"
+            [style.width]="getKeyWidth(key)"
+            [style.background-color]="getKeyColor(key)"
+            (click)="onKeyClick(key)"
+          >
+            {{ key }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+}

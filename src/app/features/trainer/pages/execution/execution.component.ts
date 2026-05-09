@@ -14,11 +14,12 @@ import { KeyboardZoneApiService } from '../../../../core/services/keyboard-zone-
 import { StatisticsApiService } from '../../../../core/services/statistics-api.service';
 import {NzPopoverDirective} from 'ng-zorro-antd/popover';
 import {NotificationService} from '../../../../core/services/notification.service';
+import { KeyboardVisualizerComponent } from '../../../../shared/components/keyboard-visualizer/keyboard-visualizer.component';
 
 @Component({
   selector: 'app-execution',
   standalone: true,
-  imports: [CommonModule, FormsModule, NzButtonModule, NzIconModule, NzModalModule, NzSwitchModule, NzPopoverDirective],
+  imports: [CommonModule, FormsModule, NzButtonModule, NzIconModule, NzModalModule, NzSwitchModule, NzPopoverDirective, KeyboardVisualizerComponent],
   templateUrl: './execution.component.html',
   styleUrls: ['./execution.component.scss']
 })
@@ -132,6 +133,12 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     return this.slowCorrectIndices().has(index);
   }
 
+  readonly expectedKey = computed(() => {
+    const index = this.currentIndex();
+    const tokens = this.tokens();
+    return index < tokens.length ? tokens[index] : null;
+  });
+
   @HostListener('document:keydown', ['$event'])
   handleKey(event: KeyboardEvent): void {
     if (!this.exercise() || !this.level() || this.tokens().length === 0) {
@@ -144,6 +151,22 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     }
 
     event.preventDefault();
+    this.processKey(key);
+  }
+
+  handleVirtualKey(key: string): void {
+    this.processKey(key);
+  }
+
+  private processKey(rawKey: string): void {
+    if (!this.exercise() || !this.level() || this.tokens().length === 0) {
+      return;
+    }
+
+    const pressed = this.normalizeInputKey(rawKey);
+    if (pressed === null) {
+      return;
+    }
 
     if (!this.started()) {
       this.started.set(true);
@@ -163,16 +186,14 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     this.lastPressTime = now;
 
     const expected = this.tokens()[index];
-    const pressed = key === ' ' ? ' ' : key;
 
     if (lateError) {
       if (this.normalizeChar(pressed) === this.normalizeChar(expected)) {
         this.markSlowCorrect(index, true);
         return;
-      } else {
-        this.markError(index, true);
-        return;
       }
+      this.markError(index, true);
+      return;
     }
 
     if (this.normalizeChar(pressed) === this.normalizeChar(expected)) {
@@ -180,6 +201,16 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     } else {
       this.markError(index, true);
     }
+  }
+
+  private normalizeInputKey(value: string): string | null {
+    if (!value) {
+      return null;
+    }
+    if (value === 'Space') {
+      return ' ';
+    }
+    return value;
   }
 
   private normalizeChar(value: string): string {
