@@ -1,2 +1,37 @@
-.page { padding: 16px; }
+.statistics-page {
+  padding: 16px;
+  min-height: calc(100vh - 64px);
+  background: #e6f4ff;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.levels-card {
+  width: 260px;
+}
+
+.levels-menu {
+  border: none;
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cards-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.content-card {
+  width: 100%;
+  text-align: center;
+}
+
+.chart-container {
+  height: 320px;
+}
 

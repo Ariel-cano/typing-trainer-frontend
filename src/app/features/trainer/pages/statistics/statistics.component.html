@@ -1,4 +1,56 @@
-<div class="page">
-  <h2>Trainer Statistics (stub)</h2>
+<div class="statistics-page">
+  <nz-card class="levels-card">
+    <ul nz-menu nzMode="inline" class="levels-menu">
+      <li nz-submenu nzTitle="Уровень сложности" nzOpen nzIcon="setting">
+        @for (levelNumber of levelsMenu; track $index) {
+          <li
+            nz-menu-item
+            [nzSelected]="selectedIndex === $index"
+            [attr.aria-selected]="selectedIndex === $index"
+            role="option"
+            tabindex="0"
+            (click)="selectLevel($index)"
+            (keydown.enter)="selectLevel($index)"
+            (keydown.space)="selectLevel($index)">
+            {{ levelNumber }} уровень
+          </li>
+        }
+      </li>
+    </ul>
+  </nz-card>
+
+  <div class="content">
+    <nz-spin [nzSpinning]="loading()">
+      <ng-container *ngIf="filteredStats().length > 0; else noData">
+        <div class="cards-column">
+          <nz-card nzTitle="Среднее время нажатия на клавишу" class="content-card">
+            <div class="chart-container">
+              <canvas
+                baseChart
+                [type]="'line'"
+                [data]="lineChartData()"
+                [options]="lineChartOptions"
+              ></canvas>
+            </div>
+          </nz-card>
+
+          <nz-card nzTitle="Количество ошибок в каждом упражнении" class="content-card">
+            <div class="chart-container">
+              <canvas
+                baseChart
+                [type]="'bar'"
+                [data]="barChartData()"
+                [options]="barChartOptions"
+              ></canvas>
+            </div>
+          </nz-card>
+        </div>
+      </ng-container>
+
+      <ng-template #noData>
+        <nz-empty nzNotFoundContent="Нет данных для этого уровня"></nz-empty>
+      </ng-template>
+    </nz-spin>
+  </div>
 </div>
 
