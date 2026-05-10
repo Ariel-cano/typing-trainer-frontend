@@ -23,8 +23,9 @@ import {
 } from 'chart.js';
 import { AuthStateService } from '../../../../core/services/auth-state.service';
 import { DifficultyApiService } from '../../../../core/services/difficulty-api.service';
+import { ExerciseApiService } from '../../../../core/services/exercise-api.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { DifficultyLevel, Statistic } from '../../../../core/models';
+import { DifficultyLevel, Exercise, Statistic } from '../../../../core/models';
 import { StatisticsApiService } from '../../../../core/services/statistics-api.service';
 
 Chart.register(
@@ -60,10 +61,12 @@ export class StatisticsComponent implements OnInit {
   private readonly authState = inject(AuthStateService);
   private readonly notificationService = inject(NotificationService);
   private readonly difficultyApi = inject(DifficultyApiService);
+  private readonly exerciseApi = inject(ExerciseApiService);
 
   readonly loading = signal(false);
   readonly allStats = signal<Statistic[]>([]);
   readonly levels = signal<DifficultyLevel[]>([]);
+  readonly exercises = signal<Exercise[]>([]);
   readonly levelsMenu = [1, 2, 3, 4, 5];
   selectedIndex = 0;
   readonly selectedLevelId = signal<string | null>(null);
@@ -126,9 +129,23 @@ export class StatisticsComponent implements OnInit {
     });
   });
 
-  readonly chartLabels = computed(() =>
-    this.bestStatsByExercise().map((_, i) => String(i + 1))
-  );
+  private readonly exerciseIdToOrder = computed(() => {
+    const map = new Map<string, number>();
+    this.exercises().forEach((e, i) => {
+      if (e?.id) map.set(e.id, i + 1);
+    });
+    return map;
+  });
+
+  readonly chartLabels = computed(() => {
+    const orderMap = this.exerciseIdToOrder();
+    return this.bestStatsByExercise().map((s) => {
+      const id = s.exercise_id;
+      if (!id) return '?';
+      const n = orderMap.get(id);
+      return typeof n === 'number' ? String(n) : '?';
+    });
+  });
 
   readonly avgKeyPressTimeSeconds = computed(() => {
     return this.bestStatsByExercise().map((s) => {
@@ -213,6 +230,7 @@ export class StatisticsComponent implements OnInit {
     }
     this.selectedIndex = index;
     this.selectedLevelId.set(this.levels().at(index)?.id ?? null);
+    this.loadExercisesForSelectedLevel();
   }
 
   private load(): void {
@@ -220,6 +238,7 @@ export class StatisticsComponent implements OnInit {
     if (!userId) {
       this.allStats.set([]);
       this.selectedLevelId.set(null);
+      this.exercises.set([]);
       return;
     }
 
@@ -243,11 +262,13 @@ export class StatisticsComponent implements OnInit {
             const idx = latestLevelId ? this.levels().findIndex((l) => l.id === latestLevelId) : -1;
             this.selectedIndex = idx >= 0 ? idx : 0;
             this.selectedLevelId.set(this.levels().at(this.selectedIndex)?.id ?? null);
+            this.loadExercisesForSelectedLevel();
           },
           error: () => {
             this.notificationService.warning('Не удалось загрузить статистику');
             this.allStats.set([]);
             this.selectedLevelId.set(this.levels().at(this.selectedIndex)?.id ?? null);
+            this.loadExercisesForSelectedLevel();
           }
         }).add(() => this.loading.set(false));
       },
@@ -258,14 +279,33 @@ export class StatisticsComponent implements OnInit {
             this.allStats.set(stats ?? []);
             this.selectedIndex = 0;
             this.selectedLevelId.set(null);
+            this.exercises.set([]);
           },
           error: () => {
             this.notificationService.warning('Не удалось загрузить статистику');
             this.allStats.set([]);
             this.selectedIndex = 0;
             this.selectedLevelId.set(null);
+            this.exercises.set([]);
           }
         }).add(() => this.loading.set(false));
+      }
+    });
+  }
+
+  private loadExercisesForSelectedLevel(): void {
+    this.exercises.set([]);
+    const levelId = this.selectedLevelId();
+    if (!levelId) {
+      return;
+    }
+
+    this.exerciseApi.getByLevel(levelId).subscribe({
+      next: (exercises) => {
+        this.exercises.set((exercises ?? []).filter((e) => e.level_id === levelId));
+      },
+      error: () => {
+        this.exercises.set([]);
       }
     });
   }
