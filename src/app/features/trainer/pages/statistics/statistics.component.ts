@@ -122,7 +122,13 @@ export class StatisticsComponent implements OnInit {
       if (sd > cd) bestByExercise.set(exerciseId, s);
     }
 
+    const orderMap = this.exerciseIdToOrder();
+
     return Array.from(bestByExercise.values()).sort((a, b) => {
+      const ao = a.exercise_id ? (orderMap.get(a.exercise_id) ?? Number.POSITIVE_INFINITY) : Number.POSITIVE_INFINITY;
+      const bo = b.exercise_id ? (orderMap.get(b.exercise_id) ?? Number.POSITIVE_INFINITY) : Number.POSITIVE_INFINITY;
+      if (ao !== bo) return ao - bo;
+
       const ad = a.created_at ? Date.parse(a.created_at) : 0;
       const bd = b.created_at ? Date.parse(b.created_at) : 0;
       return ad - bd;
