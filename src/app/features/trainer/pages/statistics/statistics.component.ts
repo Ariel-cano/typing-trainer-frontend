@@ -79,32 +79,67 @@ export class StatisticsComponent implements OnInit {
     });
   });
 
+  readonly bestStatsByExercise = computed(() => {
+    const stats = this.filteredStats();
+    const bestByExercise = new Map<string, Statistic>();
+
+    for (const s of stats) {
+      const exerciseId = s.exercise_id;
+      if (!exerciseId) continue;
+
+      const current = bestByExercise.get(exerciseId);
+      if (!current) {
+        bestByExercise.set(exerciseId, s);
+        continue;
+      }
+
+      const sSpeed = s.speed ?? 0;
+      const cSpeed = current.speed ?? 0;
+      if (sSpeed !== cSpeed) {
+        if (sSpeed > cSpeed) bestByExercise.set(exerciseId, s);
+        continue;
+      }
+
+      const sMistakes = s.mistakes_percent ?? 0;
+      const cMistakes = current.mistakes_percent ?? 0;
+      if (sMistakes !== cMistakes) {
+        if (sMistakes < cMistakes) bestByExercise.set(exerciseId, s);
+        continue;
+      }
+
+      const sTime = s.execution_time ?? Number.MAX_SAFE_INTEGER;
+      const cTime = current.execution_time ?? Number.MAX_SAFE_INTEGER;
+      if (sTime !== cTime) {
+        if (sTime < cTime) bestByExercise.set(exerciseId, s);
+        continue;
+      }
+
+      const sd = s.created_at ? Date.parse(s.created_at) : 0;
+      const cd = current.created_at ? Date.parse(current.created_at) : 0;
+      if (sd > cd) bestByExercise.set(exerciseId, s);
+    }
+
+    return Array.from(bestByExercise.values()).sort((a, b) => {
+      const ad = a.created_at ? Date.parse(a.created_at) : 0;
+      const bd = b.created_at ? Date.parse(b.created_at) : 0;
+      return ad - bd;
+    });
+  });
+
   readonly chartLabels = computed(() =>
-    this.filteredStats()
-      .slice()
-      .reverse()
-      .map((_, i) => String(i + 1))
+    this.bestStatsByExercise().map((_, i) => String(i + 1))
   );
 
   readonly avgKeyPressTimeSeconds = computed(() => {
-    // precision: execution_time / total_chars_unknown -> берём прокси: execution_time / speed * 60
-    // speed = знаков/минуту => secondsPerChar = 60 / speed
-    return this.filteredStats()
-      .slice()
-      .reverse()
-      .map((s) => {
-        const speed = s.speed ?? 0;
-        if (speed <= 0) return 0;
-        console.log(Number((600 / speed).toFixed(3)));
-        return Number((600 / speed).toFixed(3));
-      });
+    return this.bestStatsByExercise().map((s) => {
+      const speed = s.speed ?? 0;
+      if (speed <= 0) return 0;
+      return Number((60 / speed).toFixed(3));
+    });
   });
 
   readonly mistakesPercent = computed(() =>
-    this.filteredStats()
-      .slice()
-      .reverse()
-      .map((s) => s.mistakes_percent ?? 0)
+    this.bestStatsByExercise().map((s) => s.mistakes_percent ?? 0)
   );
 
   readonly lineChartData = computed<ChartData<'line'>>(() => ({
@@ -170,7 +205,6 @@ export class StatisticsComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
-    console.log()
   }
 
   selectLevel(index: number): void {
