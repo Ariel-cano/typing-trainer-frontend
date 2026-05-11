@@ -1,0 +1,54 @@
+.about-system {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px;
+
+  .title {
+    margin: 0 0 16px;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .toc {
+	margin-bottom: 16px;
+  }
+
+  .section {
+	margin-bottom: 16px;
+
+	p {
+	  margin: 0 0 12px;
+	}
+
+	ul {
+	  margin: 0;
+	  padding-left: 20px;
+	}
+
+	.figure {
+	  margin-top: 12px;
+	}
+
+	.figure__placeholder {
+	  border: 1px dashed rgba(0, 0, 0, 0.25);
+	  border-radius: 8px;
+	  padding: 16px;
+	  background: #fafafa;
+	  color: rgba(0, 0, 0, 0.65);
+	  text-align: center;
+    overflow: hidden;
+	}
+  }
+}
+
+.figure__image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;
+}
+
+
+
