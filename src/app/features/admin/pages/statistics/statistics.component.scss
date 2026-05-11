@@ -1,2 +1,35 @@
-.page { padding: 16px; }
+.page {
+  padding: 16px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.levels {
+  position: sticky;
+  top: 16px;
+}
+
+.levels-menu {
+  border-right: 0;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  width: 100%;
+  text-align: center;
+}
+
+.chart {
+  height: 360px;
+}
 

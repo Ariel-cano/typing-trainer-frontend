@@ -1,4 +1,92 @@
 <div class="page">
-  <h2>Admin Statistics (stub)</h2>
+  <div class="layout">
+<!--    <nz-card class="levels" nzTitle="Уровень сложности">-->
+<!--      <ul nz-menu nzMode="inline" class="levels-menu">-->
+<!--        <li-->
+<!--          nz-menu-item-->
+<!--          *ngFor="let level of levelsMenu; let i = index"-->
+<!--          [nzSelected]="selectedIndex === i"-->
+<!--          (click)="selectLevel(i)"-->
+<!--        >-->
+<!--          Уровень {{ level }}-->
+<!--        </li>-->
+<!--      </ul>-->
+<!--    </nz-card>-->
+    <nz-card class="levels">
+      <ul nz-menu nzMode="inline" class="levels-menu">
+        <li nz-submenu nzTitle="Уровень сложности" nzOpen nzIcon="setting">
+          @for (levelNumber of levelsMenu; track $index) {
+            <li
+              nz-menu-item
+              [nzSelected]="selectedIndex === $index"
+              [attr.aria-selected]="selectedIndex === $index"
+              role="option"
+              tabindex="0"
+              (click)="selectLevel($index)"
+              (keydown.enter)="selectLevel($index)"
+              (keydown.space)="selectLevel($index)">
+              {{ levelNumber }} уровень
+            </li>
+          }
+        </li>
+      </ul>
+    </nz-card>
+
+    <div class="content">
+      <nz-spin [nzSpinning]="loading()">
+        <ng-container *ngIf="allStats().length > 0; else empty">
+          <nz-card nzTitle="Статистика по упражнениям" class="card">
+            <div class="chart">
+              <canvas
+                baseChart
+                [type]="'bar'"
+                [data]="barChartData()"
+                [options]="barChartOptions"
+              ></canvas>
+            </div>
+          </nz-card>
+
+          <nz-card nzTitle="Статистика по пользователям" class="card">
+            <nz-table
+              #tbl
+              [nzData]="tableRows()"
+              [nzFrontPagination]="true"
+              [nzPageSize]="5"
+              [nzShowPagination]="true"
+            >
+              <thead>
+                <tr>
+                  <th>Пользователь</th>
+                  <th>№ упражнения</th>
+                  <th>Скорость (зн/мин)</th>
+                  <th>Ошибки (%)</th>
+                  <th>Время (сек)</th>
+                  <th>Статус</th>
+                  <th>Дата</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of tbl.data">
+                  <td>{{ s.userLogin }}</td>
+                  <td>{{ s.exerciseOrder ?? '?' }}</td>
+                  <td>{{ s.speed ?? '-' }}</td>
+                  <td>{{ s.mistakes_percent ?? '-' }}</td>
+                  <td>{{ s.execution_time ?? '-' }}</td>
+                  <td>{{ s.status ?? 'success' }}</td>
+                  <td>{{ s.created_at ? (s.created_at | date: 'dd.MM.yyyy HH:mm') : '-' }}</td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-card>
+        </ng-container>
+
+        <ng-template #empty>
+          <nz-card class="card">
+            <nz-empty nzNotFoundContent="Нет данных для этого уровня"></nz-empty>
+          </nz-card>
+        </ng-template>
+      </nz-spin>
+    </div>
+  </div>
 </div>
 
