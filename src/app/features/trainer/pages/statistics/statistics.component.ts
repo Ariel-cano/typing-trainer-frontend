@@ -74,7 +74,9 @@ export class StatisticsComponent implements OnInit {
   readonly filteredStats = computed(() => {
     const levelId = this.selectedLevelId();
     const stats = this.allStats();
-    const filtered = levelId ? stats.filter((s) => s.level_id === levelId) : [];
+    const filtered = levelId
+      ? stats.filter((s) => s.level_id === levelId && (s.status === undefined || s.status === 'success'))
+      : [];
     return filtered.sort((a, b) => {
       const ad = a.created_at ? Date.parse(a.created_at) : 0;
       const bd = b.created_at ? Date.parse(b.created_at) : 0;
@@ -257,6 +259,7 @@ export class StatisticsComponent implements OnInit {
             this.allStats.set(stats ?? []);
 
             const latest = (stats ?? [])
+              .filter((s) => s.status === undefined || s.status === 'success')
               .slice()
               .sort((a, b) => {
                 const ad = a.created_at ? Date.parse(a.created_at) : 0;

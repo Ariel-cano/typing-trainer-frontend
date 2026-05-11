@@ -3,6 +3,7 @@
   user_id: string;
   level_id: string;
   exercise_id: string;
+  status?: 'success' | 'failed';
   mistakes_percent?: number;
   execution_time?: number;
   speed?: number;

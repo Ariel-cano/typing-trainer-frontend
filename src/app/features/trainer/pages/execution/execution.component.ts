@@ -65,6 +65,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
   private lastPressTime: number | null = null;
   private exerciseId: string | null = null;
   private levelId: string | null = null;
+  private attemptFinalized = false;
 
   ngOnInit(): void {
     this.exerciseId = this.route.snapshot.queryParamMap.get('exerciseId');
@@ -263,6 +264,9 @@ export class ExecutionComponent implements OnInit, OnDestroy {
 
   private handleErrorsModal(timeOver = false): void {
     this.stopTimer();
+
+    this.finalizeAttempt('failed');
+
     this.modal.confirm({
       nzTitle: timeOver ? 'Отведенное время на выполнение упражнения истекло' : 'Превышено допустимое количество ошибок',
       nzContent: 'Попробовать ещё раз?',
@@ -291,6 +295,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
       user_id: userId,
       level_id: this.levelId,
       exercise_id: this.exerciseId,
+      status: 'success',
       mistakes_percent: Math.round((this.errors() / Math.max(total, 1)) * 100),
       execution_time: duration,
       speed: Math.round((total / duration) * 60)
@@ -305,6 +310,7 @@ export class ExecutionComponent implements OnInit, OnDestroy {
 
   private resetExercise(): void {
     this.stopTimer();
+    this.attemptFinalized = false;
     this.started.set(false);
     this.charactersTyped.set(0);
     this.errors.set(0);
@@ -313,6 +319,37 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     this.slowCorrectIndices.set(new Set());
     this.lastPressTime = null;
     this.syncTimer();
+  }
+
+  private finalizeAttempt(status: 'failed'): void {
+    if (this.attemptFinalized) return;
+
+    const total = this.tokens().length;
+    const maxTime = this.maxTimeSeconds();
+    const remaining = this.remainingSeconds();
+    const duration = Math.max(1, maxTime - remaining);
+
+    const userId = this.authState.currentUser()?.id ?? '';
+    if (!this.exerciseId || !this.levelId || !userId) {
+      this.attemptFinalized = true;
+      return;
+    }
+
+    const stat: StatisticCreateRequest = {
+      user_id: userId,
+      level_id: this.levelId,
+      exercise_id: this.exerciseId,
+      status,
+      mistakes_percent: Math.round((this.errors() / Math.max(total, 1)) * 100),
+      execution_time: duration,
+      speed: duration > 0 ? Math.round((this.charactersTyped() / duration) * 60) : 0
+    };
+
+    this.attemptFinalized = true;
+    this.statisticsApi.create(stat).subscribe({
+      next: () => {},
+      error: () => {}
+    });
   }
 
   private startMusic(): void {
