@@ -23,6 +23,7 @@ import { DifficultyApiService } from '../../../../core/services/difficulty-api.s
 import { ExerciseApiService } from '../../../../core/services/exercise-api.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { StatisticsApiService } from '../../../../core/services/statistics-api.service';
+import { UserApiService } from '../../../../core/services/user-api.service';
 
 Chart.register(
   CategoryScale,
@@ -52,6 +53,7 @@ Chart.register(
 export class StatisticsComponent implements OnInit {
   private readonly difficultyApi = inject(DifficultyApiService);
   private readonly statisticsApi = inject(StatisticsApiService);
+  private readonly userApi = inject(UserApiService);
   private readonly exerciseApi = inject(ExerciseApiService);
   private readonly notificationService = inject(NotificationService);
 
@@ -59,6 +61,7 @@ export class StatisticsComponent implements OnInit {
   readonly levels = signal<DifficultyLevel[]>([]);
   readonly exercises = signal<Exercise[]>([]);
   readonly allStats = signal<Statistic[]>([]);
+  readonly userLoginById = signal<Map<string, string>>(new Map());
 
   readonly levelsMenu = [1, 2, 3, 4, 5];
   selectedIndex = 0;
@@ -99,6 +102,7 @@ export class StatisticsComponent implements OnInit {
     const levelId = this.selectedLevelId();
     this.exercises.set([]);
     this.allStats.set([]);
+    this.userLoginById.set(new Map());
     if (!levelId) return;
 
     this.loading.set(true);
@@ -110,18 +114,47 @@ export class StatisticsComponent implements OnInit {
 
     this.statisticsApi.getByLevel(levelId).subscribe({
       next: (stats) => {
-        const list = (stats ?? []).filter((s) => s.level_id === levelId);
-        this.allStats.set(
-          list.slice().sort((a, b) => {
+        const list = (stats ?? [])
+          .filter((s) => s.level_id === levelId)
+          .slice()
+          .sort((a, b) => {
             const ad = a.created_at ? Date.parse(a.created_at) : 0;
             const bd = b.created_at ? Date.parse(b.created_at) : 0;
             return bd - ad;
-          })
-        );
+          });
+
+        this.allStats.set(list);
+
+        const userIds = Array.from(new Set(list.map((s) => s.user_id).filter((id) => id.length > 0)));
+
+        if (userIds.length === 0) {
+          this.userLoginById.set(new Map());
+          return;
+        }
+
+        const loginMap = new Map<string, string>();
+        let remaining = userIds.length;
+
+        for (const userId of userIds) {
+          this.userApi.getUserNameById(userId).subscribe({
+            next: (user) => {
+              loginMap.set(userId, user?.login ?? userId);
+            },
+            error: () => {
+              loginMap.set(userId, userId);
+            }
+          }).add(() => {
+            remaining -= 1;
+            if (remaining === 0) {
+              this.userLoginById.set(loginMap);
+            }
+          });
+        }
       },
       error: () => {
         this.notificationService.warning('Не удалось загрузить статистику');
         this.allStats.set([]);
+        this.userLoginById.set(new Map());
       }
     }).add(() => this.loading.set(false));
   }
@@ -201,11 +234,12 @@ export class StatisticsComponent implements OnInit {
 
   readonly tableRows = computed(() => {
     const orderMap = this.exerciseIdToOrder();
+    const loginById = this.userLoginById();
     return this.allStats().map((s) => {
       const order = s.exercise_id ? (orderMap.get(s.exercise_id) ?? null) : null;
       return {
         ...s,
-        userLogin: s.user_id,
+        userLogin: s.user_id ? (loginById.get(s.user_id) ?? s.user_id) : '-',
         exerciseOrder: order
       };
     });

@@ -22,6 +22,10 @@
   "/statistics": {
     "target": "http://localhost:8080",
     "changeOrigin": true
+  },
+  "/users": {
+    "target": "http://localhost:8080",
+    "changeOrigin": true
   }
 }
 
