@@ -155,10 +155,6 @@ export class ExecutionComponent implements OnInit, OnDestroy {
     this.processKey(key);
   }
 
-  handleVirtualKey(key: string): void {
-    this.processKey(key);
-  }
-
   private processKey(rawKey: string): void {
     if (!this.exercise() || !this.level() || this.tokens().length === 0) {
       return;

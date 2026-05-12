@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-keyboard-visualizer',
@@ -11,7 +11,6 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class KeyboardVisualizerComponent {
   @Input() visible = false;
   @Input() highlightKey: string | null = null;
-  @Output() keyPress = new EventEmitter<string>();
 
   readonly rows: string[][] = [
     ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace'],
@@ -20,13 +19,6 @@ export class KeyboardVisualizerComponent {
     ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'Shift'],
     ['Space']
   ];
-
-  onKeyClick(key: string): void {
-    if (!this.visible) {
-      return;
-    }
-    this.keyPress.emit(key);
-  }
 
   isHighlighted(key: string): boolean {
     if (!this.highlightKey) {
